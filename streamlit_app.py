@@ -49,21 +49,22 @@ def cargar_imagen(path, ancho):
         )
 
 # ---------- FUNCIÓN PARA CARGAR DATOS ----------
-@st.cache_data(ttl=5)
+@st.cache_data(ttl=10)
 def cargar_datos():
     resp = requests.get(URL, timeout=10)
     resp.raise_for_status()
     data = resp.json().get("values", [])
+    
     if not data:
         return pd.DataFrame(columns=["Pre-Stage", "Destino", "Fecha Despacho", "Ocupacion"])
-    df = pd.DataFrame(data[1:], columns=data[0])
-    df = df.fillna("")
+    
+    df = pd.DataFrame(data[1:], columns=data[0]).fillna("")
     return df
 
 # ---------- ESTILOS CSS ----------
 big_css = """
 <style>
-body, table, th, td, h1, h2, h3, h4, p, span, div {
+body, table, th, td, h1, h2, h3, p, span, div {
     color: #000000 !important;
     font-weight: 600;
 }
@@ -87,12 +88,10 @@ tbody td {
     border: 2px solid #444;
 }
 
-/* Columna Destino intermedia */
 th:nth-child(2),
 td:nth-child(2) {
     width: 320px !important;
     max-width: 320px !important;
-    white-space: normal !important;
     word-wrap: break-word !important;
 }
 
@@ -112,7 +111,6 @@ td:nth-child(2) {
 
 .small-note {
     font-size:15px;
-    color:#000000 !important;
     text-align:center;
 }
 </style>
@@ -135,7 +133,6 @@ with header_center:
             border-radius:8px;
             font-size:28px;
             font-weight:800;
-            color:#000000;
             width:100%;
         '>
             UBICACIÓN DE PREPARACIONES
@@ -153,20 +150,16 @@ st.caption(f"Última actualización: {datetime.now().strftime('%H:%M:%S')}")
 try:
     df = cargar_datos()
 
-    df["Pre-Stage"] = df["Pre-Stage"].astype(str).str.strip()
-    df["Destino"] = df["Destino"].astype(str).str.strip()
-    df["Fecha Despacho"] = df["Fecha Despacho"].astype(str).str.strip()
-    df["Ocupacion"] = df["Ocupacion"].astype(str).str.strip()
+    # Limpieza
+    for col in ["Pre-Stage", "Destino", "Fecha Despacho", "Ocupacion"]:
+        df[col] = df[col].astype(str).str.strip()
 
     zona_j = df[df["Pre-Stage"].str.upper().str.startswith("J")].reset_index(drop=True)
     zona_d = df[df["Pre-Stage"].str.upper().str.startswith("D")].reset_index(drop=True)
 
     cols = ["Pre-Stage", "Destino", "Fecha Despacho", "Ocupacion"]
-
-    if zona_j.empty:
-        zona_j = pd.DataFrame(columns=cols)
-    if zona_d.empty:
-        zona_d = pd.DataFrame(columns=cols)
+    if zona_j.empty: zona_j = pd.DataFrame(columns=cols)
+    if zona_d.empty: zona_d = pd.DataFrame(columns=cols)
 
     # Semáforo
     def render_semaforo(valor):
@@ -192,7 +185,7 @@ try:
 
         html = (
             f"<div class='table-container'>"
-            f"<h3 style='text-align:center;margin-bottom:12px; color:#000000;'>{title}</h3>"
+            f"<h3 style='text-align:center;margin-bottom:12px;'>{title}</h3>"
             + display.to_html(escape=False, index=False)
             + "</div>"
         )
