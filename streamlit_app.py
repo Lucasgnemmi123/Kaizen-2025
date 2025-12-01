@@ -24,7 +24,7 @@ URL = (
     f"?alt=json&key={API_KEY}"
 )
 
-REFRESH_INTERVAL = 60  # segundos
+REFRESH_INTERVAL = 300  # segundos
 
 # ---------- AUTO REFRESH COMPATIBLE STREAMLIT CLOUD ----------
 st.markdown(
@@ -207,4 +207,5 @@ try:
 except Exception as e:
     st.error("⚠️ Error al cargar los datos desde Google Sheets API.")
     st.exception(e)
+
 
