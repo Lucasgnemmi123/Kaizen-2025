@@ -12,54 +12,42 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ---------- CSS PROFESIONAL (SOLUCIÓN DEFINITIVA DE ALTURAS) ----------
+# ---------- CSS AGRESIVO (COLORES SÓLIDOS) ----------
 st.markdown("""
 <style>
-    /* 1. Reset Global y Layout */
+    /* 1. Ajustes del Layout */
     .block-container {
         padding-top: 1rem !important;
         padding-bottom: 3rem !important;
         max-width: 98% !important;
     }
     header, footer { display: none !important; }
-    
-    /* 2. Alineación Vertical (Flexbox) para todas las columnas */
+
+    /* 2. Alineación Vertical */
     div[data-testid="column"] {
         display: flex;
-        align-items: center; /* Centrado vertical estricto */
+        align-items: center;
         justify-content: center;
         height: 100%;
     }
 
-    /* 3. IGUALAR ALTURAS (LA SOLUCIÓN CLAVE) 
-       Forzamos 45px de altura en Inputs, Selects, Botones y Badges */
-       
-    /* A) Inputs de Texto (Destino) */
-    div[data-baseweb="input"] {
-        height: 45px !important;
-        background-color: white;
-        border-radius: 6px;
-        border: 1px solid #ced4da;
-    }
-    div[data-baseweb="base-input"] input {
-        height: 43px !important; /* Un poco menos para el borde */
-        font-size: 16px !important;
-        padding: 0 10px !important;
-        font-weight: 500;
-        color: #333;
-    }
-
-    /* B) Selectbox (Fecha) */
-    div[data-baseweb="select"] > div {
+    /* 3. IGUALAR ALTURAS (45px) */
+    
+    /* Inputs y Selects */
+    div[data-baseweb="input"], div[data-baseweb="select"] > div {
         height: 45px !important;
         min-height: 45px !important;
-        border-radius: 6px;
-        border-color: #ced4da;
-        display: flex;
-        align-items: center;
+        background-color: white !important;
+        border-radius: 6px !important;
+        border: 1px solid #ced4da !important;
     }
-    
-    /* C) Badge UBI (J01) */
+    div[data-baseweb="base-input"] input {
+        height: 43px !important;
+        font-size: 16px !important;
+        font-weight: 500 !important;
+    }
+
+    /* Badge UBI */
     .id-badge {
         height: 45px !important;
         width: 100%;
@@ -69,56 +57,76 @@ st.markdown("""
         font-size: 18px;
         font-weight: 900;
         border-radius: 6px;
-        border: 1px solid rgba(0,0,0,0.15);
+        border: 1px solid rgba(0,0,0,0.1);
         text-shadow: 0 1px 1px rgba(255,255,255,0.4);
     }
 
-    /* 4. BOTONES PROFESIONALES (COLORES SÓLIDOS) */
+    /* 4. ESTILOS DE BOTONES (FIX DEFINITIVO) */
+    
+    /* Base para TODOS los botones */
     div[data-testid="stButton"] button {
         height: 45px !important;
         width: 100%;
         border: none !important;
-        border-radius: 6px;
-        font-weight: 700;
-        font-size: 14px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: white !important; /* Texto blanco siempre */
-        transition: all 0.2s;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        border-radius: 6px !important;
+        font-size: 15px !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+        color: white !important; /* Texto blanco SIEMPRE */
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
+        transition: background-color 0.2s, transform 0.1s !important;
     }
     
-    div[data-testid="stButton"] button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        filter: brightness(110%); /* Brillar al pasar mouse */
+    /* Efecto al presionar (Active) */
+    div[data-testid="stButton"] button:active {
+        transform: scale(0.98) !important;
     }
 
-    /* --- INYECCIÓN DE COLORES A LOS BOTONES --- */
-    /* Usamos selectores específicos para "pintar" los botones de la última columna */
+    /* --- COLORES ESPECÍFICOS (USANDO SELECTORES DE ORDEN) --- */
+    
+    /* NOTA: La estructura es: Columna Principal 4 -> contiene 3 Columnas Anidadas */
 
-    /* Botón 1: Parcial -> VERDE */
+    /* 1. BOTÓN PARCIAL (VERDE) */
+    /* Seleccionamos el botón dentro de la 1ra columna anidada de la 4ta columna principal */
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(1) button {
-        background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+        background-color: #27ae60 !important; /* Verde solido */
+    }
+    /* Hover Verde */
+    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(1) button:hover {
+        background-color: #219150 !important; /* Verde más oscuro */
+        color: white !important;
+        border: none !important;
     }
 
-    /* Botón 2: Lleno -> ROJO */
+    /* 2. BOTÓN LLENO (ROJO) */
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(2) button {
-        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        background-color: #c0392b !important; /* Rojo solido */
+    }
+    /* Hover Rojo */
+    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(2) button:hover {
+        background-color: #a93226 !important; /* Rojo más oscuro */
+        color: white !important;
+        border: none !important;
     }
 
-    /* Botón 3: Reestablecer -> GRIS */
+    /* 3. BOTÓN REESTABLECER (GRIS AZULADO) */
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(3) button {
-        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+        background-color: #5d6d7e !important; /* Gris */
+    }
+    /* Hover Gris */
+    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(3) button:hover {
+        background-color: #34495e !important; /* Gris oscuro */
+        color: white !important;
+        border: none !important;
     }
 
-    /* Estilos Colores UBI */
+    /* Colores Estado ID */
     .bg-vacia { background-color: #d1e7dd; color: #0f5132; border-color: #badbcc; } 
     .bg-parcial { background-color: #fff3cd; color: #664d03; border-color: #ffecb5; } 
     .bg-completa { background-color: #f8d7da; color: #842029; border-color: #f5c2c7; } 
 
-    /* Separador */
-    hr { margin: 10px 0; border-color: #dee2e6; opacity: 0.5; }
+    hr { margin: 10px 0; border-color: #ddd; }
 
 </style>
 """, unsafe_allow_html=True)
@@ -191,39 +199,38 @@ for _, row in df.iterrows():
     elif ocup == "Completa": css = "bg-completa"
 
     with st.container():
-        # Columnas alineadas
         c1, c2, c3, c4 = st.columns([1, 3, 2, 4.5], gap="small")
         
-        # 1. UBI (Badge)
+        # 1. UBI
         with c1:
             st.markdown(f"<div class='id-badge {css}'>{pre}</div>", unsafe_allow_html=True)
             
-        # 2. DESTINO (Input)
+        # 2. DESTINO
         with c2:
-            new_dest = st.text_input("D", value=str(row['Destino']), key=f"d_{pre}", label_visibility="collapsed", placeholder="Ingresa destino...")
+            new_dest = st.text_input("D", value=str(row['Destino']), key=f"d_{pre}", label_visibility="collapsed", placeholder="Destino...")
             
-        # 3. FECHA (Select)
+        # 3. FECHA
         with c3:
             ops = get_fechas(str(row['Fecha Despacho']))
             idx = ops.index(str(row['Fecha Despacho'])) if str(row['Fecha Despacho']) in ops else 0
             new_date = st.selectbox("F", options=ops, index=idx, key=f"f_{pre}", label_visibility="collapsed")
             
-        # 4. BOTONES (Coloreados por CSS)
+        # 4. BOTONES (Colores Sólidos forzados por CSS)
         with c4:
             b1, b2, b3 = st.columns([1, 0.9, 1.3], gap="small")
             
             with b1:
-                # Botón Verde (CSS auto)
+                # Botón Verde
                 if st.button("Parcial", icon=":material/save:", key=f"s_{pre}"):
                     if accion(pre, new_dest, new_date, "parcial"): st.rerun()
 
             with b2:
-                # Botón Rojo (CSS auto)
+                # Botón Rojo
                 if st.button("Lleno", icon=":material/lock:", key=f"l_{pre}"):
                     if accion(pre, new_dest, new_date, "full"): st.rerun()
 
             with b3:
-                # Botón Gris (CSS auto)
+                # Botón Gris
                 if st.button("Reestablecer", icon=":material/refresh:", key=f"r_{pre}"):
                     if accion(pre, new_dest, new_date, "reset"): st.rerun()
 
