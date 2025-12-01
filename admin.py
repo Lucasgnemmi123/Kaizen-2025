@@ -12,7 +12,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ---------- CSS DEFINITIVO (SIN ERRORES DE COLOR) ----------
+# ---------- CSS DEFINITIVO ----------
 st.markdown("""
 <style>
     /* 1. Layout Básico */
@@ -59,10 +59,10 @@ st.markdown("""
     }
 
     /* ============================================================
-       5. SOLUCIÓN DEFINITIVA A LOS BOTONES
+       5. BOTONES PERSONALIZADOS CON CLASES (SIN ERRORES)
        ============================================================ */
 
-    /* Regla base para TODOS los botones en la app */
+    /* Base de todos los botones */
     div[data-testid="stButton"] button {
         height: 45px !important;
         width: 100% !important;
@@ -71,54 +71,48 @@ st.markdown("""
         font-weight: 700 !important;
         text-transform: uppercase !important;
         letter-spacing: 0.5px !important;
-        transition: none !important; /* Quitamos animaciones que causan parpadeo */
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.15) !important;
     }
 
-    /* FORZAR TEXTO E ICONOS A BLANCO SIEMPRE */
-    div[data-testid="stButton"] button * {
+    /* ---------- Colores aplicados por clase ---------- */
+
+    .btn-parcial {
+        background-color: #198754 !important;
+        color: white !important;
+    }
+    .btn-parcial:hover {
+        background-color: #146c43 !important;
+    }
+
+    .btn-full {
+        background-color: #dc3545 !important;
+        color: white !important;
+    }
+    .btn-full:hover {
+        background-color: #b02a37 !important;
+    }
+
+    .btn-reset {
+        background-color: #6c757d !important;
+        color: white !important;
+    }
+    .btn-reset:hover {
+        background-color: #565e64 !important;
+    }
+
+    /* Fuerza íconos y texto blanco SOLO en mis botones */
+    .btn-parcial *, .btn-full *, .btn-reset * {
         color: white !important;
         fill: white !important;
     }
 
-    /* --- COLORES POR POSICIÓN (ELIMINANDO EL BLANCO) --- */
-
-    /* BOTÓN 1: PARCIAL (VERDE) */
-    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(1) button {
-        background: #198754 !important; /* Verde solido */
-        color: white !important;
-    }
-    /* Estado Hover (Mouse encima) */
-    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(1) button:hover {
-        background: #146c43 !important; /* Verde oscuro */
-    }
-    
-    /* BOTÓN 2: LLENO (ROJO) */
-    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(2) button {
-        background: #dc3545 !important; /* Rojo solido */
-        color: white !important;
-    }
-    /* Estado Hover */
-    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(2) button:hover {
-        background: #b02a37 !important; /* Rojo oscuro */
-    }
-
-    /* BOTÓN 3: REESTABLECER (GRIS) */
-    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(3) button {
-        background: #6c757d !important; /* Gris solido */
-        color: white !important;
-    }
-    /* Estado Hover */
-    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(3) button:hover {
-        background: #565e64 !important; /* Gris oscuro */
-    }
-
-    /* Evitar que al hacer click se ponga blanco/transparente */
-    div[data-testid="stButton"] button:active, div[data-testid="stButton"] button:focus {
+    /* Active/focus sin flash blanco */
+    div[data-testid="stButton"] button:active,
+    div[data-testid="stButton"] button:focus {
         color: white !important;
         border: none !important;
         outline: none !important;
-        box-shadow: inset 0 3px 5px rgba(0,0,0,0.2) !important;
+        box-shadow: inset 0 3px 5px rgba(0,0,0,0.25) !important;
     }
 
     /* Colores Estado ID */
@@ -127,7 +121,6 @@ st.markdown("""
     .bg-completa { background-color: #f8d7da; color: #842029; border-color: #f5c2c7; } 
 
     hr { margin: 12px 0; border-color: #dee2e6; }
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -138,7 +131,8 @@ SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapi
 def conectar():
     try:
         return gspread.authorize(Credentials.from_service_account_info(st.secrets["gsheets"], scopes=SCOPES))
-    except: st.stop()
+    except:
+        st.stop()
 
 SHEET_ID = "1M9Sccc-3bA33N1MNJtkTCcrDSKK_wfRjeDnqxsrlEtA"
 HOJA_NOMBRE = "Hoja 1"
@@ -151,7 +145,8 @@ def get_data():
 
 def get_fechas(actual):
     lista = [(datetime.now() + timedelta(days=i)).strftime("%d-%m-%Y") for i in range(3)]
-    if actual and actual not in lista: lista.insert(0, actual)
+    if actual and actual not in lista:
+        lista.insert(0, actual)
     return lista
 
 def accion(pre, dest, fecha, tipo):
@@ -162,9 +157,11 @@ def accion(pre, dest, fecha, tipo):
         if tipo == "reset":
             dest, fecha, estado = "", "", "Vacia"
             msg = f"♻️ {pre} Liberado"
+
         elif tipo == "parcial":
             estado = "Parcial" if dest else "Vacia"
             msg = f"💾 {pre} Guardado"
+
         elif tipo == "full":
             if not dest:
                 st.toast("⚠️ Falta Destino", icon="⚠️")
@@ -177,7 +174,9 @@ def accion(pre, dest, fecha, tipo):
         sheet.update_cell(row, 4, estado)
         st.toast(msg)
         return True
-    except Exception as e: st.error(f"Error: {e}")
+
+    except Exception as e:
+        st.error(f"Error: {e}")
 
 # ---------- INTERFAZ ----------
 
@@ -194,37 +193,56 @@ df = get_data()
 for _, row in df.iterrows():
     pre = str(row['Pre-Stage'])
     ocup = str(row['Ocupacion'])
+
     css = "bg-vacia"
     if ocup == "Parcial": css = "bg-parcial"
     elif ocup == "Completa": css = "bg-completa"
 
     with st.container():
         c1, c2, c3, c4 = st.columns([1, 3, 2, 4.5], gap="small")
-        
+
         with c1:
             st.markdown(f"<div class='id-badge {css}'>{pre}</div>", unsafe_allow_html=True)
-            
+
         with c2:
             new_dest = st.text_input("D", value=str(row['Destino']), key=f"d_{pre}", label_visibility="collapsed", placeholder="Destino...")
-            
+
         with c3:
             ops = get_fechas(str(row['Fecha Despacho']))
             idx = ops.index(str(row['Fecha Despacho'])) if str(row['Fecha Despacho']) in ops else 0
             new_date = st.selectbox("F", options=ops, index=idx, key=f"f_{pre}", label_visibility="collapsed")
-            
+
         with c4:
             b1, b2, b3 = st.columns([1, 0.9, 1.3], gap="small")
-            
+
             with b1:
-                if st.button("Parcial", icon=":material/save:", key=f"s_{pre}", use_container_width=True):
-                    if accion(pre, new_dest, new_date, "parcial"): st.rerun()
+                if st.button(
+                    '<span class="btn-parcial">Parcial</span>',
+                    key=f"s_{pre}",
+                    unsafe_allow_html=True,
+                    use_container_width=True
+                ):
+                    if accion(pre, new_dest, new_date, "parcial"):
+                        st.rerun()
 
             with b2:
-                if st.button("Lleno", icon=":material/lock:", key=f"l_{pre}", use_container_width=True):
-                    if accion(pre, new_dest, new_date, "full"): st.rerun()
+                if st.button(
+                    '<span class="btn-full">Lleno</span>',
+                    key=f"l_{pre}",
+                    unsafe_allow_html=True,
+                    use_container_width=True
+                ):
+                    if accion(pre, new_dest, new_date, "full"):
+                        st.rerun()
 
             with b3:
-                if st.button("Reestablecer", icon=":material/refresh:", key=f"r_{pre}", use_container_width=True):
-                    if accion(pre, new_dest, new_date, "reset"): st.rerun()
+                if st.button(
+                    '<span class="btn-reset">Reestablecer</span>',
+                    key=f"r_{pre}",
+                    unsafe_allow_html=True,
+                    use_container_width=True
+                ):
+                    if accion(pre, new_dest, new_date, "reset"):
+                        st.rerun()
 
     st.markdown("<div style='margin-bottom:8px'></div>", unsafe_allow_html=True)
