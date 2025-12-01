@@ -12,88 +12,113 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ---------- ESTILOS CSS (ALINEACIÓN PERFECTA) ----------
+# ---------- CSS PROFESIONAL (SOLUCIÓN DEFINITIVA DE ALTURAS) ----------
 st.markdown("""
 <style>
-    /* 1. Ajustes del Layout */
+    /* 1. Reset Global y Layout */
     .block-container {
         padding-top: 1rem !important;
         padding-bottom: 3rem !important;
         max-width: 98% !important;
     }
     header, footer { display: none !important; }
-
-    /* 2. Alineación Vertical (Flexbox para las columnas) */
+    
+    /* 2. Alineación Vertical (Flexbox) para todas las columnas */
     div[data-testid="column"] {
         display: flex;
-        align-items: center; /* Centrado vertical */
+        align-items: center; /* Centrado vertical estricto */
         justify-content: center;
         height: 100%;
     }
 
-    /* 3. INPUTS Y SELECTS (Altura Forzada 55px) */
-    /* Esto afecta a la caja de texto Destino y al Select de Fecha */
-    .stTextInput input, div[data-baseweb="select"] > div {
-        height: 55px !important;      /* Altura exacta */
-        min-height: 55px !important;
-        font-size: 18px !important;   /* Letra legible */
+    /* 3. IGUALAR ALTURAS (LA SOLUCIÓN CLAVE) 
+       Forzamos 45px de altura en Inputs, Selects, Botones y Badges */
+       
+    /* A) Inputs de Texto (Destino) */
+    div[data-baseweb="input"] {
+        height: 45px !important;
+        background-color: white;
         border-radius: 6px;
         border: 1px solid #ced4da;
-        line-height: normal;
+    }
+    div[data-baseweb="base-input"] input {
+        height: 43px !important; /* Un poco menos para el borde */
+        font-size: 16px !important;
+        padding: 0 10px !important;
+        font-weight: 500;
+        color: #333;
     }
 
-    /* 4. TARJETA DE IDENTIFICACIÓN (Altura Forzada 55px) */
-    /* Esto afecta al cuadro UBI (J-01, etc) */
+    /* B) Selectbox (Fecha) */
+    div[data-baseweb="select"] > div {
+        height: 45px !important;
+        min-height: 45px !important;
+        border-radius: 6px;
+        border-color: #ced4da;
+        display: flex;
+        align-items: center;
+    }
+    
+    /* C) Badge UBI (J01) */
     .id-badge {
+        height: 45px !important;
         width: 100%;
-        height: 55px !important;      /* MISMA ALTURA EXACTA QUE EL INPUT */
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 22px;
-        font-weight: 800;
+        font-size: 18px;
+        font-weight: 900;
         border-radius: 6px;
-        color: #212529;
-        border: 1px solid rgba(0,0,0,0.1);
-        box-sizing: border-box;       /* Para que el borde no sume altura extra */
+        border: 1px solid rgba(0,0,0,0.15);
+        text-shadow: 0 1px 1px rgba(255,255,255,0.4);
     }
 
-    /* 5. BOTONES (Altura Forzada 55px) */
+    /* 4. BOTONES PROFESIONALES (COLORES SÓLIDOS) */
     div[data-testid="stButton"] button {
+        height: 45px !important;
         width: 100%;
-        height: 55px !important;      /* MISMA ALTURA EXACTA */
+        border: none !important;
         border-radius: 6px;
-        border: 1px solid transparent;
-        font-weight: 600;
-        font-size: 15px;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        font-weight: 700;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: white !important; /* Texto blanco siempre */
+        transition: all 0.2s;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
     }
     
     div[data-testid="stButton"] button:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        filter: brightness(110%); /* Brillar al pasar mouse */
     }
 
-    /* --- COLORES DE BOTONES --- */
-    /* Parcial (Verde) */
+    /* --- INYECCIÓN DE COLORES A LOS BOTONES --- */
+    /* Usamos selectores específicos para "pintar" los botones de la última columna */
+
+    /* Botón 1: Parcial -> VERDE */
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(1) button {
-        background-color: #198754; color: white;
-    }
-    /* Lleno (Rojo) */
-    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(2) button {
-        background-color: #dc3545; color: white;
-    }
-    /* Reestablecer (Gris) */
-    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(3) button {
-        background-color: #6c757d; color: white;
+        background: linear-gradient(135deg, #28a745 0%, #218838 100%);
     }
 
-    /* Colores Estado ID */
+    /* Botón 2: Lleno -> ROJO */
+    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(2) button {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    }
+
+    /* Botón 3: Reestablecer -> GRIS */
+    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(3) button {
+        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    }
+
+    /* Estilos Colores UBI */
     .bg-vacia { background-color: #d1e7dd; color: #0f5132; border-color: #badbcc; } 
     .bg-parcial { background-color: #fff3cd; color: #664d03; border-color: #ffecb5; } 
     .bg-completa { background-color: #f8d7da; color: #842029; border-color: #f5c2c7; } 
 
-    hr { margin: 15px 0; border-color: #dee2e6; }
+    /* Separador */
+    hr { margin: 10px 0; border-color: #dee2e6; opacity: 0.5; }
 
 </style>
 """, unsafe_allow_html=True)
@@ -128,16 +153,16 @@ def accion(pre, dest, fecha, tipo):
         
         if tipo == "reset":
             dest, fecha, estado = "", "", "Vacia"
-            msg = f"♻️ {pre} Reestablecido"
+            msg = f"♻️ {pre} Liberado"
         elif tipo == "parcial":
             estado = "Parcial" if dest else "Vacia"
-            msg = f"💾 {pre} Guardado (Parcial)"
+            msg = f"💾 {pre} Guardado"
         elif tipo == "full":
             if not dest:
                 st.toast("⚠️ Ingresa un Destino", icon="⚠️")
                 return
             estado = "Completa"
-            msg = f"🛑 {pre} marcado LLENO"
+            msg = f"🛑 {pre} FULL"
 
         sheet.update_cell(row, 2, dest)
         sheet.update_cell(row, 3, fecha)
@@ -150,10 +175,10 @@ def accion(pre, dest, fecha, tipo):
 
 # Encabezados
 h1, h2, h3, h4 = st.columns([1, 3, 2, 4.5]) 
-h1.markdown("<div style='text-align:center; font-weight:bold; color:#6c757d; font-size:14px;'>UBI</div>", unsafe_allow_html=True)
-h2.markdown("<div style='text-align:center; font-weight:bold; color:#6c757d; font-size:14px;'>DESTINO / CLIENTE</div>", unsafe_allow_html=True)
-h3.markdown("<div style='text-align:center; font-weight:bold; color:#6c757d; font-size:14px;'>FECHA</div>", unsafe_allow_html=True)
-h4.markdown("<div style='text-align:center; font-weight:bold; color:#6c757d; font-size:14px;'>ACCIONES</div>", unsafe_allow_html=True)
+h1.markdown("<div style='text-align:center; font-weight:700; color:#555; font-size:14px;'>UBI</div>", unsafe_allow_html=True)
+h2.markdown("<div style='text-align:center; font-weight:700; color:#555; font-size:14px;'>DESTINO / CLIENTE</div>", unsafe_allow_html=True)
+h3.markdown("<div style='text-align:center; font-weight:700; color:#555; font-size:14px;'>FECHA</div>", unsafe_allow_html=True)
+h4.markdown("<div style='text-align:center; font-weight:700; color:#555; font-size:14px;'>PANEL DE ACCIÓN</div>", unsafe_allow_html=True)
 st.markdown("<hr>", unsafe_allow_html=True)
 
 df = get_data()
@@ -161,8 +186,6 @@ df = get_data()
 for _, row in df.iterrows():
     pre = str(row['Pre-Stage'])
     ocup = str(row['Ocupacion'])
-    
-    # Estilo badge
     css = "bg-vacia"
     if ocup == "Parcial": css = "bg-parcial"
     elif ocup == "Completa": css = "bg-completa"
@@ -171,32 +194,37 @@ for _, row in df.iterrows():
         # Columnas alineadas
         c1, c2, c3, c4 = st.columns([1, 3, 2, 4.5], gap="small")
         
+        # 1. UBI (Badge)
         with c1:
-            # Aquí se aplica la clase .id-badge que tiene height: 55px !important
             st.markdown(f"<div class='id-badge {css}'>{pre}</div>", unsafe_allow_html=True)
             
+        # 2. DESTINO (Input)
         with c2:
-            # Aquí el CSS fuerza el input a 55px
-            new_dest = st.text_input("D", value=str(row['Destino']), key=f"input_dest_{pre}", label_visibility="collapsed", placeholder="Destino...")
+            new_dest = st.text_input("D", value=str(row['Destino']), key=f"d_{pre}", label_visibility="collapsed", placeholder="Ingresa destino...")
             
+        # 3. FECHA (Select)
         with c3:
             ops = get_fechas(str(row['Fecha Despacho']))
             idx = ops.index(str(row['Fecha Despacho'])) if str(row['Fecha Despacho']) in ops else 0
-            new_date = st.selectbox("F", options=ops, index=idx, key=f"select_date_{pre}", label_visibility="collapsed")
+            new_date = st.selectbox("F", options=ops, index=idx, key=f"f_{pre}", label_visibility="collapsed")
             
+        # 4. BOTONES (Coloreados por CSS)
         with c4:
             b1, b2, b3 = st.columns([1, 0.9, 1.3], gap="small")
             
             with b1:
-                if st.button("Parcial", icon=":material/save:", key=f"btn_save_{pre}"):
+                # Botón Verde (CSS auto)
+                if st.button("Parcial", icon=":material/save:", key=f"s_{pre}"):
                     if accion(pre, new_dest, new_date, "parcial"): st.rerun()
 
             with b2:
-                if st.button("Lleno", icon=":material/lock:", key=f"btn_full_{pre}"):
+                # Botón Rojo (CSS auto)
+                if st.button("Lleno", icon=":material/lock:", key=f"l_{pre}"):
                     if accion(pre, new_dest, new_date, "full"): st.rerun()
 
             with b3:
-                if st.button("Reestablecer", icon=":material/refresh:", key=f"btn_reset_{pre}"):
+                # Botón Gris (CSS auto)
+                if st.button("Reestablecer", icon=":material/refresh:", key=f"r_{pre}"):
                     if accion(pre, new_dest, new_date, "reset"): st.rerun()
 
-    st.markdown("<div style='margin-bottom:10px'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-bottom:8px'></div>", unsafe_allow_html=True)
