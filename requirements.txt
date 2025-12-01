@@ -3,3 +3,5 @@ streamlit-extras
 pandas
 requests
 Pillow
+gspread
+google-auth
