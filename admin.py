@@ -5,41 +5,82 @@ from google.oauth2.service_account import Credentials
 from datetime import datetime, timedelta
 import time
 
-# ---------- CONFIGURACIÓN GENERAL ----------
+# ---------- CONFIGURACIÓN DE PÁGINA ----------
 st.set_page_config(
-    page_title="Panel Admin Kaizen",
+    page_title="Admin Panel",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# ---------- ESTILOS CSS ----------
-# Estilos para que se parezca a tu HTML original (Input grandes, Botones de colores)
+# ---------- ESTILOS CSS PROFESIONALES ----------
 st.markdown("""
 <style>
-    .block-container { padding-top: 1rem; }
-    h1 { text-align: center; color: #333; margin-bottom: 20px; }
-    
-    /* Cajas de estado (Pre-Stage) */
-    .status-box {
-        padding: 10px;
-        border-radius: 6px;
-        text-align: center;
-        font-weight: bold;
-        color: #000;
-        border: 1px solid #999;
+    /* 1. Limpieza General */
+    .block-container {
+        padding-top: 1rem !important;
+        padding-bottom: 2rem !important;
+        max-width: 95% !important;
     }
+    header, footer { display: none !important; }
     
-    /* Separador de filas */
-    .row-separator {
-        border-top: 1px solid #ddd;
-        margin-top: 5px;
-        margin-bottom: 5px;
+    /* 2. Alineación Vertical de Columnas */
+    div[data-testid="column"] {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100%;
     }
 
-    /* Botones personalizados */
+    /* 3. Tarjeta de Fila (Card Design) */
+    .row-card {
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 10px 0px;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    /* 4. Estilo del ID (J-01, D-01...) */
+    .id-badge {
+        font-size: 24px;
+        font-weight: 900;
+        text-align: center;
+        color: #333;
+        padding: 8px;
+        border-radius: 6px;
+        width: 100%;
+        display: block;
+        border: 2px solid #333;
+    }
+
+    /* Colores de Estado para el ID */
+    .status-vacia { background-color: #2ECC71; border-color: #27AE60; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); }
+    .status-parcial { background-color: #F1C40F; border-color: #D4AC0D; color: black; }
+    .status-completa { background-color: #E74C3C; border-color: #C0392B; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); }
+
+    /* 5. Inputs (Campos de texto) */
+    .stTextInput input {
+        font-size: 18px;
+        font-weight: bold;
+        text-align: center;
+        border: 1px solid #ccc;
+    }
+    
+    /* 6. Botones Personalizados */
     div[data-testid="stButton"] button {
         width: 100%;
+        border-radius: 6px;
         font-weight: bold;
+        border: none;
+        padding: 0.5rem 0.1rem;
+        transition: all 0.2s;
+    }
+
+    /* Hover Effects */
+    div[data-testid="stButton"] button:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -51,181 +92,174 @@ SCOPES = [
 ]
 
 @st.cache_resource
-def obtener_conexion():
-    """Conecta a Google Sheets usando secrets.toml"""
-    creds = Credentials.from_service_account_info(
-        st.secrets["gsheets"], scopes=SCOPES
-    )
-    client = gspread.authorize(creds)
-    return client
+def conectar_gsheets():
+    try:
+        creds = Credentials.from_service_account_info(
+            st.secrets["gsheets"], scopes=SCOPES
+        )
+        client = gspread.authorize(creds)
+        return client
+    except Exception as e:
+        st.error(f"Error de credenciales: {e}")
+        st.stop()
 
-# IDs y Constantes
+# Constantes
 SHEET_ID = "1M9Sccc-3bA33N1MNJtkTCcrDSKK_wfRjeDnqxsrlEtA"
 HOJA_NOMBRE = "Hoja 1"
 
-try:
-    client = obtener_conexion()
-    sheet = client.open_by_key(SHEET_ID).worksheet(HOJA_NOMBRE)
-except Exception as e:
-    st.error("🚨 Error de conexión. Verifica que hayas compartido la hoja con el email del JSON.")
-    st.stop()
+client = conectar_gsheets()
+sheet = client.open_by_key(SHEET_ID).worksheet(HOJA_NOMBRE)
 
-# ---------- FUNCIONES DE LÓGICA ----------
+# ---------- LÓGICA DE DATOS ----------
 
-def cargar_datos():
-    """Descarga los datos frescos de la hoja"""
-    # get_all_records devuelve lista de dicts. Asumimos encabezados en fila 1.
-    data = sheet.get_all_records()
-    return pd.DataFrame(data)
+def obtener_datos_frescos():
+    """Obtiene datos SIN CACHÉ para garantizar sincronización real"""
+    return pd.DataFrame(sheet.get_all_records())
 
-def generar_fechas(fecha_actual):
-    """Genera lista: [Hoy, +1, +2]. Si fecha_actual existe y no está en rango, la agrega."""
+def generar_fechas_dinamicas(fecha_actual_db):
+    """Genera Hoy, Mañana, Pasado. Mantiene la fecha actual seleccionada."""
     opciones = []
     hoy = datetime.now()
+    
+    # Generar 3 días
     for i in range(3):
         f = hoy + timedelta(days=i)
-        opciones.append(f.strftime("%d-%m-%Y")) # Formato dd-mm-yyyy igual a tu script
+        opciones.append(f.strftime("%d-%m-%Y"))
     
-    # Asegurar que la fecha que ya tiene la celda aparezca en la lista
-    if fecha_actual and fecha_actual not in opciones:
-        opciones.insert(0, fecha_actual)
-    
+    # Si la fecha que viene de la BD es vieja o distinta, la agregamos al principio
+    # para que el usuario vea qué fecha tenía guardada
+    if fecha_actual_db and fecha_actual_db not in opciones:
+        opciones.insert(0, fecha_actual_db)
+        
     return opciones
 
-def guardar_cambios(pre_stage, destino, fecha, es_full):
-    """Lógica equivalente a saveRow() de Apps Script"""
-    with st.spinner(f"Guardando {pre_stage}..."):
-        # 1. Calcular Estado
-        if not destino:
-            ocupacion = "Vacia"
-            fecha = "" # Limpiar fecha si no hay destino
+def actualizar_fila(pre_stage, destino, fecha, accion):
+    """
+    Maneja Guardar, Full y Reset en una sola función.
+    accion: 'parcial', 'completa', 'reset'
+    """
+    try:
+        # Buscar fila
+        cell = sheet.find(str(pre_stage), in_column=1)
+        row = cell.row
+        
+        estado = "Vacia"
+        
+        if accion == "reset":
             destino = ""
-        elif es_full:
-            ocupacion = "Completa"
-        else:
-            ocupacion = "Parcial"
+            fecha = ""
+            estado = "Vacia"
+            msg = f"♻️ {pre_stage} Liberado"
+            
+        elif accion == "parcial":
+            if not destino: # Si intenta guardar vacío, es un reset implícito
+                estado = "Vacia"
+            else:
+                estado = "Parcial"
+            msg = f"💾 {pre_stage} Guardado (Parcial)"
+            
+        elif accion == "completa":
+            if not destino:
+                st.warning("⚠️ Debes escribir un destino para marcar FULL")
+                return False
+            estado = "Completa"
+            msg = f"🛑 {pre_stage} marcado FULL"
+
+        # Escritura en bloque (más segura)
+        sheet.update_cell(row, 2, destino)
+        sheet.update_cell(row, 3, fecha)
+        sheet.update_cell(row, 4, estado)
         
-        # 2. Buscar fila en Google Sheet (Columna 1 = Pre-Stage)
-        try:
-            cell = sheet.find(str(pre_stage), in_column=1)
-            row_idx = cell.row
-            
-            # 3. Actualizar Celdas (Col 2: Destino, 3: Fecha, 4: Ocupacion)
-            # update_cells es más eficiente si fueran muchas, pero update_cell es seguro fila por fila
-            sheet.update_cell(row_idx, 2, destino)
-            sheet.update_cell(row_idx, 3, fecha)
-            sheet.update_cell(row_idx, 4, ocupacion)
-            
-            st.toast(f"✅ {pre_stage} actualizado a: {ocupacion}")
-            return True
-        except Exception as e:
-            st.error(f"Error al guardar: {e}")
-            return False
+        st.toast(msg)
+        return True
+        
+    except Exception as e:
+        st.error(f"Error al conectar con Google Sheets: {e}")
+        return False
 
-def resetear_fila(pre_stage):
-    """Lógica equivalente a resetRow()"""
-    with st.spinner(f"Reseteando {pre_stage}..."):
-        try:
-            cell = sheet.find(str(pre_stage), in_column=1)
-            row_idx = cell.row
-            
-            sheet.update_cell(row_idx, 2, "")
-            sheet.update_cell(row_idx, 3, "")
-            sheet.update_cell(row_idx, 4, "Vacia")
-            
-            st.toast(f"♻️ {pre_stage} ha sido vaciado.")
-            return True
-        except Exception as e:
-            st.error(f"Error al resetear: {e}")
-            return False
+# ---------- INTERFAZ GRÁFICA ----------
 
-# ---------- INTERFAZ (UI) ----------
+# 1. Cargar datos frescos
+df = obtener_datos_frescos()
 
-st.markdown("<h1>🏭 Panel de Control de Preparaciones</h1>", unsafe_allow_html=True)
+# 2. Encabezados "Falsos" para guiar la vista
+h1, h2, h3, h4 = st.columns([1, 3, 2, 2.5])
+h1.markdown("<div style='text-align:center; font-weight:bold; color:#777;'>UBICACIÓN</div>", unsafe_allow_html=True)
+h2.markdown("<div style='text-align:center; font-weight:bold; color:#777;'>DESTINO / CLIENTE</div>", unsafe_allow_html=True)
+h3.markdown("<div style='text-align:center; font-weight:bold; color:#777;'>FECHA</div>", unsafe_allow_html=True)
+h4.markdown("<div style='text-align:center; font-weight:bold; color:#777;'>ACCIONES</div>", unsafe_allow_html=True)
+st.markdown("<hr style='margin:5px 0; border-top:2px solid #333;'>", unsafe_allow_html=True)
 
-# Botón global de recarga manual (por si acaso)
-if st.button("🔄 Recargar Datos Actuales"):
-    st.rerun()
-
-df = cargar_datos()
-
-# Encabezados Visuales
-cols = st.columns([1, 3, 2, 0.8, 1, 1])
-titulos = ["Pre-Stage", "Destino", "Fecha", "Full", "Guardar", "Reset"]
-for col, titulo in zip(cols, titulos):
-    col.markdown(f"<div style='text-align:center; font-weight:bold; background:#eee; padding:5px; border:1px solid #999;'>{titulo}</div>", unsafe_allow_html=True)
-
-st.write("") # Espacio
-
-# Bucle para crear una fila de controles por cada registro
-for i, row in df.iterrows():
+# 3. Iterar filas
+for idx, row in df.iterrows():
     pre = str(row['Pre-Stage'])
-    destino_val = str(row['Destino'])
+    dest_val = str(row['Destino'])
     fecha_val = str(row['Fecha Despacho'])
-    ocupacion_val = str(row['Ocupacion'])
-    
-    # Definir color según ocupación (Igual a tu CSS anterior)
-    color_bg = "#BDC3C7" # Gris default
-    if ocupacion_val == "Vacia": color_bg = "#A9DFBF" # Verde
-    elif ocupacion_val == "Parcial": color_bg = "#F9E79F" # Amarillo
-    elif ocupacion_val == "Completa": color_bg = "#F5B7B1" # Rojo
-    
-    # Contenedor de Fila
-    c1, c2, c3, c4, c5, c6 = st.columns([1, 3, 2, 0.8, 1, 1], gap="small")
-    
-    # Col 1: Pre-Stage (Visual)
-    with c1:
-        st.markdown(
-            f"<div class='status-box' style='background-color:{color_bg};'>{pre}</div>",
-            unsafe_allow_html=True
-        )
-    
-    # Col 2: Input Destino
-    with c2:
-        new_dest = st.text_input(
-            "Dest", 
-            value=destino_val, 
-            key=f"dest_{pre}", 
-            label_visibility="collapsed"
-        )
-        
-    # Col 3: Select Fecha
-    with c3:
-        opciones = generar_fechas(fecha_val)
-        # Buscar índice
-        try:
-            idx = opciones.index(fecha_val)
-        except ValueError:
-            idx = 0
-            
-        new_date = st.selectbox(
-            "Fec", 
-            options=opciones, 
-            index=idx, 
-            key=f"date_{pre}", 
-            label_visibility="collapsed"
-        )
-        
-    # Col 4: Checkbox Full
-    with c4:
-        # Centrar el checkbox es truculento en streamlit, usamos un contenedor vacío arriba
-        st.write("") 
-        is_full = (ocupacion_val == "Completa")
-        new_full = st.checkbox("Full", value=is_full, key=f"full_{pre}")
-        
-    # Col 5: Botón Guardar (Verde)
-    with c5:
-        if st.button("💾", key=f"save_{pre}", help="Guardar cambios", type="secondary"):
-            if guardar_cambios(pre, new_dest, new_date, new_full):
-                time.sleep(0.5) # Pequeña pausa para ver el toast
-                st.rerun()
-                
-    # Col 6: Botón Reset (Rojo)
-    with c6:
-        if st.button("🗑️", key=f"reset_{pre}", help="Borrar todo", type="primary"):
-            if resetear_fila(pre):
-                time.sleep(0.5)
-                st.rerun()
+    ocup_val = str(row['Ocupacion']) # Vacia, Parcial, Completa
 
-    # Línea separadora
-    st.markdown("<div class='row-separator'></div>", unsafe_allow_html=True)
+    # Determinar clase CSS para el color del ID
+    css_class = "status-vacia"
+    if ocup_val == "Parcial": css_class = "status-parcial"
+    elif ocup_val == "Completa": css_class = "status-completa"
+
+    # --- CONTENEDOR VISUAL (TARJETA) ---
+    with st.container():
+        # Columnas: ID | Input Destino | Input Fecha | Botones
+        c_id, c_dest, c_fec, c_btn = st.columns([1, 3, 2, 2.5])
+        
+        # COL 1: ID VISUAL
+        with c_id:
+            st.markdown(f"<div class='id-badge {css_class}'>{pre}</div>", unsafe_allow_html=True)
+
+        # COL 2: INPUT DESTINO
+        with c_dest:
+            new_dest = st.text_input(
+                "Destino", 
+                value=dest_val, 
+                key=f"d_{pre}", 
+                label_visibility="collapsed",
+                placeholder="Ingresa destino..."
+            )
+
+        # COL 3: INPUT FECHA
+        with c_fec:
+            opciones = generar_fechas_dinamicas(fecha_val)
+            # Buscar índice seguro
+            try: sel_idx = opciones.index(fecha_val)
+            except: sel_idx = 0
+            
+            new_date = st.selectbox(
+                "Fecha", 
+                options=opciones, 
+                index=sel_idx, 
+                key=f"f_{pre}", 
+                label_visibility="collapsed"
+            )
+
+        # COL 4: BOTONES DE ACCIÓN (AQUÍ ESTÁ LA MAGIA)
+        with c_btn:
+            # Sub-columnas para los 3 botones bien pegaditos
+            b1, b2, b3 = st.columns(3, gap="small")
+            
+            with b1:
+                # Botón PARCIAL (Amarillo/Naranja)
+                if st.button("💾", key=f"save_{pre}", help="Guardar como Parcial"):
+                    if actualizar_fila(pre, new_dest, new_date, "parcial"):
+                        st.rerun()
+
+            with b2:
+                # Botón FULL (Rojo) - Se destaca más
+                if st.button("🛑 FULL", key=f"full_{pre}", type="primary", help="Marcar como Completa"):
+                    if actualizar_fila(pre, new_dest, new_date, "completa"):
+                        st.rerun()
+
+            with b3:
+                # Botón RESET (Verde/Gris)
+                # Usamos type="secondary" pero lo estilizaremos visualmente si se pudiera,
+                # por ahora standard.
+                if st.button("♻️", key=f"clean_{pre}", help="Vaciar ubicación"):
+                    if actualizar_fila(pre, new_dest, new_date, "reset"):
+                        st.rerun()
+        
+        # Separador sutil entre tarjetas
+        st.markdown("<div style='margin-bottom: 12px;'></div>", unsafe_allow_html=True)
