@@ -38,12 +38,13 @@ def cargar_imagen(path, ancho):
     if os.path.exists(path):
         st.image(path, width=ancho)
     else:
+        # Placeholder estilizado si no hay imagen
         st.markdown(
             f"""
-            <div style='width:{ancho}px; height:120px; border:2px dashed #999; 
+            <div style='width:{ancho}px; height:80px; border:2px dashed #ccc; 
             display:flex; align-items:center; justify-content:center; 
-            font-size:14px; color:#555; border-radius:8px;'>
-            {path} no encontrado
+            font-size:12px; color:#999; border-radius:8px; margin:auto;'>
+            Sin Logo
             </div>
             """,
             unsafe_allow_html=True
@@ -62,107 +63,152 @@ def cargar_datos():
     df = pd.DataFrame(data[1:], columns=data[0]).fillna("")
     return df
 
-# ---------- ESTILOS CSS (OPTIMIZADOS PARA TV) ----------
-big_css = """
+# ---------- ESTILOS CSS (MEJORADOS VISUALMENTE) ----------
+estilo_mejorado = """
 <style>
+    /* Reset básico y fuente */
+    html, body, [class*="css"] {
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        background-color: #f9f9f9; /* Fondo suave para la app */
+    }
 
-body, table, th, td, h1, h2, h3, p, span, div {
-    color: #000000 !important;
-    font-weight: 600;
-}
+    /* Título Principal */
+    .main-title-container {
+        background: linear-gradient(90deg, #FFCC00 0%, #F7DC6F 100%); /* Gradiente DHL */
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .main-title-text {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #d40511; /* Rojo DHL para contraste o negro #000 */
+        text-transform: uppercase;
+        margin: 0;
+        letter-spacing: 1px;
+    }
 
-/* --- Título central --- */
-h1, .main-title {
-    font-size: 32px !important;
-    padding: 12px !important;
-    margin-top: 0px !important;
-}
+    /* Contenedor de las Tablas (Card View) */
+    .table-card {
+        background: white;
+        border-radius: 12px;
+        padding: 0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        overflow: hidden; /* Para respetar bordes redondeados */
+        margin-bottom: 20px;
+        border: 1px solid #e0e0e0;
+    }
 
-/* --- Texto general --- */
-table {
-    border-collapse: collapse;
-    width: 100%;
-    font-size: 24px !important;  /* MÁS GRANDE */
-}
+    /* Encabezado de Zona (J o D) */
+    .zone-header {
+        background-color: #333;
+        color: #fff;
+        padding: 15px;
+        font-size: 1.5rem;
+        font-weight: 700;
+        text-align: center;
+        letter-spacing: 1px;
+    }
 
-thead th {
-    background: #F7DC6F;
-    padding: 10px !important;
-    text-align: center !important;
-    border: 2px solid #444;
-    font-size: 26px !important;
-}
+    /* La Tabla en sí */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 1.2rem; /* Tamaño grande para TV */
+    }
 
-tbody td {
-    padding: 14px !important;
-    text-align: center !important;
-    border: 2px solid #444;
-    font-size: 24px !important;
-}
+    /* Cabecera de la tabla */
+    thead th {
+        background-color: #d40511; /* Rojo corporativo o Gris Oscuro */
+        color: white;
+        padding: 12px;
+        text-align: center;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 1rem;
+        border-bottom: 3px solid #b0040e;
+    }
 
-/* Columna Destino más ancha */
-th:nth-child(2),
-td:nth-child(2) {
-    width: 380px !important;
-    max-width: 380px !important;
-    word-wrap: break-word !important;
-}
+    /* Celdas del cuerpo */
+    tbody td {
+        padding: 12px 10px;
+        border-bottom: 1px solid #eee;
+        color: #333;
+        vertical-align: middle;
+        font-weight: 500;
+    }
 
-/* Contenedor tabla */
-.table-container {
-    border: 4px solid #000000;
-    padding: 5px;
-    border-radius: 8px;
-    background: #fff;
-}
+    /* Zebra Striping (Filas alternas) */
+    tbody tr:nth-of-type(even) {
+        background-color: #f8f9fa;
+    }
+    tbody tr:hover {
+        background-color: #fff8e1; /* Highlight al pasar mouse */
+    }
 
-/* Semáforo */
-.circle {
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    margin: auto;
-}
+    /* Columna Destino (Alineada izquierda y negrita) */
+    tbody td:nth-child(2) {
+        text-align: left !important;
+        font-weight: 700;
+        color: #000;
+        padding-left: 20px;
+    }
+    
+    /* Demás columnas centradas */
+    tbody td:nth-child(1),
+    tbody td:nth-child(3),
+    tbody td:nth-child(4) {
+        text-align: center;
+    }
 
-.small-note {
-    font-size: 20px;
-    text-align:center;
-    margin-top: 10px;
-}
+    /* Semáforo */
+    .traffic-light {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: inline-block;
+        box-shadow: inset 0 -2px 5px rgba(0,0,0,0.2); /* Efecto 3D */
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    /* Footer / Notas */
+    .footer-note {
+        font-size: 0.9rem;
+        color: #777;
+        text-align: center;
+        margin-top: 20px;
+    }
 </style>
 """
-st.markdown(big_css, unsafe_allow_html=True)
+st.markdown(estilo_mejorado, unsafe_allow_html=True)
 
 # ---------- ENCABEZADO ----------
-header_left, header_center, header_right = st.columns([1, 5, 1])
+header_left, header_center, header_right = st.columns([1, 6, 1])
 
 with header_left:
-    cargar_imagen("assets/DHL.png", 150)
+    # Centramos verticalmente la imagen
+    st.write("") # Espaciador
+    cargar_imagen("assets/DHL.png", 140)
 
 with header_center:
     st.markdown(
         """
-        <div style='
-            text-align:center;
-            background:#F7DC6F;
-            padding:18px;
-            border-radius:8px;
-            font-size:32px;
-            font-weight:800;
-            width:100%;
-        ' class='main-title'>
-            UBICACIÓN DE PREPARACIONES
+        <div class="main-title-container">
+            <p class="main-title-text">UBICACIÓN DE PREPARACIONES</p>
         </div>
         """,
         unsafe_allow_html=True
     )
 
 with header_right:
-    cargar_imagen("assets/Aramark.png", 150)
+    st.write("") # Espaciador
+    cargar_imagen("assets/Aramark.png", 140)
 
 # ---------- HORA GMT-3 ----------
 hora_chile = datetime.now(ZoneInfo("America/Santiago")).strftime("%H:%M:%S")
-st.caption(f"Última actualización (GMT-3): {hora_chile}")
+st.markdown(f"<p style='text-align:center; font-size:18px; color:#555; font-weight:bold;'>🕒 Última actualización: {hora_chile}</p>", unsafe_allow_html=True)
 
 # ---------- CARGA Y PROCESO ----------
 try:
@@ -179,46 +225,54 @@ try:
     if zona_j.empty: zona_j = pd.DataFrame(columns=cols)
     if zona_d.empty: zona_d = pd.DataFrame(columns=cols)
 
-    # Semáforo
+    # Semáforo Lógica
     def render_semaforo(valor):
         v = str(valor).lower().strip()
         if v.startswith("vac"):
-            color = "#2ECC71"
+            color = "#2ECC71" # Verde
         elif v.startswith("par"):
-            color = "#F1C40F"
+            color = "#F1C40F" # Amarillo
         elif v.startswith("com"):
-            color = "#E74C3C"
+            color = "#E74C3C" # Rojo
         else:
-            color = "#BDC3C7"
-        return f"<div class='circle' style='background:{color};'></div>"
+            color = "#BDC3C7" # Gris
+        return f"<span class='traffic-light' style='background-color:{color};'></span>"
 
-    # Tablas
+    # Función Generadora de HTML Tabla
     def preparar_html_tabla(df_zone, title):
         display = df_zone.copy()
         display["Destino"] = display["Destino"].replace("", "—")
         display["Fecha Despacho"] = display["Fecha Despacho"].replace("", "—")
         display["Ocupacion_html"] = display["Ocupacion"].apply(render_semaforo)
+        
+        # Seleccionamos y renombramos
         display = display[["Pre-Stage", "Destino", "Fecha Despacho", "Ocupacion_html"]]
-        display = display.rename(columns={"Ocupacion_html": "Ocupacion"})
+        display.columns = ["UBICACIÓN", "DESTINO", "FECHA", "ESTADO"]
 
-        html = (
-            f"<div class='table-container'>"
-            f"<h3 style='text-align:center;margin-bottom:12px;'>{title}</h3>"
-            + display.to_html(escape=False, index=False)
-            + "</div>"
+        # Generamos la tabla HTML pura sin estilos inline de pandas
+        table_html = display.to_html(escape=False, index=False, border=0)
+
+        # Envolvemos en nuestra estructura de tarjeta CSS
+        html_final = (
+            f"<div class='table-card'>"
+            f"<div class='zone-header'>{title}</div>"
+            f"{table_html}"
+            f"</div>"
         )
-        return html
+        return html_final
 
-    colJ, colD = st.columns(2)
+    # Layout de columnas para las tablas
+    colJ, colD = st.columns(2, gap="large")
 
     with colJ:
-        st.markdown(preparar_html_tabla(zona_j, "PRE - STAGE ZONA J"), unsafe_allow_html=True)
+        st.markdown(preparar_html_tabla(zona_j, "ZONA J"), unsafe_allow_html=True)
 
     with colD:
-        st.markdown(preparar_html_tabla(zona_d, "PRE - STAGE ZONA D"), unsafe_allow_html=True)
+        st.markdown(preparar_html_tabla(zona_d, "ZONA D"), unsafe_allow_html=True)
 
+    # Footer
     st.markdown(
-        f"<p class='small-note'>🔄 El tablero se actualizará en {REFRESH_INTERVAL} segundos...</p>",
+        f"<div class='footer-note'>🔄 El tablero se actualizará automáticamente en {REFRESH_INTERVAL} segundos.</div>",
         unsafe_allow_html=True
     )
 
