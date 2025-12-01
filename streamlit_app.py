@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import requests
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import os
 
 # Asegura que Streamlit busque imágenes en el directorio correcto
@@ -26,7 +27,7 @@ URL = (
 
 REFRESH_INTERVAL = 300  # segundos
 
-# ---------- AUTO REFRESH COMPATIBLE STREAMLIT CLOUD ----------
+# ---------- AUTO REFRESH (COMPATIBLE) ----------
 st.markdown(
     f'<meta http-equiv="refresh" content="{REFRESH_INTERVAL}">',
     unsafe_allow_html=True
@@ -61,18 +62,27 @@ def cargar_datos():
     df = pd.DataFrame(data[1:], columns=data[0]).fillna("")
     return df
 
-# ---------- ESTILOS CSS ----------
+# ---------- ESTILOS CSS (OPTIMIZADOS PARA TV) ----------
 big_css = """
 <style>
+
 body, table, th, td, h1, h2, h3, p, span, div {
     color: #000000 !important;
     font-weight: 600;
 }
 
+/* --- Título central --- */
+h1, .main-title {
+    font-size: 32px !important;
+    padding: 12px !important;
+    margin-top: 0px !important;
+}
+
+/* --- Texto general --- */
 table {
     border-collapse: collapse;
     width: 100%;
-    font-size: 18px !important;
+    font-size: 24px !important;  /* MÁS GRANDE */
 }
 
 thead th {
@@ -80,38 +90,44 @@ thead th {
     padding: 10px !important;
     text-align: center !important;
     border: 2px solid #444;
+    font-size: 26px !important;
 }
 
 tbody td {
-    padding: 10px !important;
+    padding: 14px !important;
     text-align: center !important;
     border: 2px solid #444;
+    font-size: 24px !important;
 }
 
+/* Columna Destino más ancha */
 th:nth-child(2),
 td:nth-child(2) {
-    width: 320px !important;
-    max-width: 320px !important;
+    width: 380px !important;
+    max-width: 380px !important;
     word-wrap: break-word !important;
 }
 
+/* Contenedor tabla */
 .table-container {
-    border: 3px solid #000000;
-    padding: 8px;
+    border: 4px solid #000000;
+    padding: 5px;
     border-radius: 8px;
     background: #fff;
 }
 
+/* Semáforo */
 .circle {
-    width: 18px;
-    height: 18px;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
     margin: auto;
 }
 
 .small-note {
-    font-size:15px;
+    font-size: 20px;
     text-align:center;
+    margin-top: 10px;
 }
 </style>
 """
@@ -131,10 +147,10 @@ with header_center:
             background:#F7DC6F;
             padding:18px;
             border-radius:8px;
-            font-size:28px;
+            font-size:32px;
             font-weight:800;
             width:100%;
-        '>
+        ' class='main-title'>
             UBICACIÓN DE PREPARACIONES
         </div>
         """,
@@ -144,7 +160,9 @@ with header_center:
 with header_right:
     cargar_imagen("assets/Aramark.png", 150)
 
-st.caption(f"Última actualización: {datetime.now().strftime('%H:%M:%S')}")
+# ---------- HORA GMT-3 ----------
+hora_chile = datetime.now(ZoneInfo("America/Santiago")).strftime("%H:%M:%S")
+st.caption(f"Última actualización (GMT-3): {hora_chile}")
 
 # ---------- CARGA Y PROCESO ----------
 try:
@@ -207,5 +225,3 @@ try:
 except Exception as e:
     st.error("⚠️ Error al cargar los datos desde Google Sheets API.")
     st.exception(e)
-
-
