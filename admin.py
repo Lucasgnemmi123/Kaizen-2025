@@ -74,12 +74,6 @@ st.markdown("""
         box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
         transition: none !important; 
     }
-
-    /* FORZAR COLOR BLANCO EN TEXTO E ICONOS */
-    div[data-testid="stButton"] button * {
-        color: white !important;
-        fill: white !important;
-    }
     
     /* Eliminar borde azul/blanco al hacer clic */
     div[data-testid="stButton"] button:focus, 
