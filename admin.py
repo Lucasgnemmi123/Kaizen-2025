@@ -35,7 +35,7 @@ st.markdown("""
     div[data-testid="stButton"] button {
         width: 100%;
         height: 50px;       /* Altura fija igual a inputs */
-        border-radius: 6px; /* Bordes ligeramente redondeados (Bootstrap style) */
+        border-radius: 6px; 
         border: 1px solid transparent;
         font-weight: 600;
         font-size: 15px;
@@ -52,7 +52,7 @@ st.markdown("""
 
     /* --- COLORES SEMÁNTICOS (BOOTSTRAP) --- */
     
-    /* Botón 1: PARCIAL -> Bootstrap Success (Verde) */
+    /* Botón 1: PARCIAL -> Verde */
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(1) button {
         background-color: #198754; 
         color: white;
@@ -61,7 +61,7 @@ st.markdown("""
         background-color: #157347;
     }
 
-    /* Botón 2: LLENO -> Bootstrap Danger (Rojo) */
+    /* Botón 2: LLENO -> Rojo */
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(2) button {
         background-color: #dc3545; 
         color: white;
@@ -70,7 +70,7 @@ st.markdown("""
         background-color: #bb2d3b;
     }
     
-    /* Botón 3: REESTABLECER -> Bootstrap Secondary (Gris) */
+    /* Botón 3: REESTABLECER -> Gris */
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(3) button {
         background-color: #6c757d; 
         color: white;
@@ -85,7 +85,7 @@ st.markdown("""
         min-height: 50px;
         font-size: 16px;
         border-radius: 6px;
-        border: 1px solid #ced4da; /* Gris Bootstrap */
+        border: 1px solid #ced4da;
     }
 
     /* 5. TARJETAS DE IDENTIFICACIÓN */
@@ -104,9 +104,9 @@ st.markdown("""
     }
 
     /* Colores Estado */
-    .bg-vacia { background-color: #d1e7dd; color: #0f5132; border-color: #badbcc; } /* Verde claro */
-    .bg-parcial { background-color: #fff3cd; color: #664d03; border-color: #ffecb5; } /* Amarillo claro */
-    .bg-completa { background-color: #f8d7da; color: #842029; border-color: #f5c2c7; } /* Rojo claro */
+    .bg-vacia { background-color: #d1e7dd; color: #0f5132; border-color: #badbcc; } 
+    .bg-parcial { background-color: #fff3cd; color: #664d03; border-color: #ffecb5; } 
+    .bg-completa { background-color: #f8d7da; color: #842029; border-color: #f5c2c7; } 
 
     hr { margin: 15px 0; border-color: #dee2e6; }
 
@@ -164,7 +164,7 @@ def accion(pre, dest, fecha, tipo):
 # ---------- INTERFAZ ----------
 
 # Encabezados
-h1, h2, h3, h4 = st.columns([1, 3, 2, 4.5]) # Damos más espacio a la col 4
+h1, h2, h3, h4 = st.columns([1, 3, 2, 4.5]) 
 h1.markdown("<div style='text-align:center; font-weight:bold; color:#6c757d;'>UBI</div>", unsafe_allow_html=True)
 h2.markdown("<div style='text-align:center; font-weight:bold; color:#6c757d;'>DESTINO / CLIENTE</div>", unsafe_allow_html=True)
 h3.markdown("<div style='text-align:center; font-weight:bold; color:#6c757d;'>FECHA</div>", unsafe_allow_html=True)
@@ -183,37 +183,38 @@ for _, row in df.iterrows():
     elif ocup == "Completa": css = "bg-completa"
 
     with st.container():
-        # Columnas: Ajustamos para que quepan los textos largos
+        # Columnas
         c1, c2, c3, c4 = st.columns([1, 3, 2, 4.5], gap="small")
         
         with c1:
             st.markdown(f"<div class='id-badge {css}'>{pre}</div>", unsafe_allow_html=True)
             
         with c2:
-            new_dest = st.text_input("D", value=str(row['Destino']), key=f"d{pre}", label_visibility="collapsed", placeholder="Ingresa destino...")
+            # Key = input_dest_ + ID
+            new_dest = st.text_input("D", value=str(row['Destino']), key=f"input_dest_{pre}", label_visibility="collapsed", placeholder="Ingresa destino...")
             
         with c3:
             ops = get_fechas(str(row['Fecha Despacho']))
             idx = ops.index(str(row['Fecha Despacho'])) if str(row['Fecha Despacho']) in ops else 0
-            new_date = st.selectbox("F", options=ops, index=idx, key=f"f{pre}", label_visibility="collapsed")
+            # Key = select_date_ + ID (Antes era f{pre} y chocaba)
+            new_date = st.selectbox("F", options=ops, index=idx, key=f"select_date_{pre}", label_visibility="collapsed")
             
         with c4:
-            # Sub-columnas: Le damos más espacio al botón "Reestablecer" (b3)
             b1, b2, b3 = st.columns([1, 0.9, 1.3], gap="small")
             
             with b1:
-                # PARCIAL: Icono Save
-                if st.button("Parcial", icon=":material/save:", key=f"s{pre}"):
+                # Key = btn_save_ + ID
+                if st.button("Parcial", icon=":material/save:", key=f"btn_save_{pre}"):
                     if accion(pre, new_dest, new_date, "parcial"): st.rerun()
 
             with b2:
-                # LLENO: Icono Candado/Stop
-                if st.button("Lleno", icon=":material/lock:", key=f"f{pre}"):
+                # Key = btn_full_ + ID (Antes era f{pre} y chocaba con la fecha)
+                if st.button("Lleno", icon=":material/lock:", key=f"btn_full_{pre}"):
                     if accion(pre, new_dest, new_date, "full"): st.rerun()
 
             with b3:
-                # REESTABLECER: Icono Refrescar
-                if st.button("Reestablecer", icon=":material/refresh:", key=f"r{pre}"):
+                # Key = btn_reset_ + ID
+                if st.button("Reestablecer", icon=":material/refresh:", key=f"btn_reset_{pre}"):
                     if accion(pre, new_dest, new_date, "reset"): st.rerun()
 
     st.markdown("<div style='margin-bottom:10px'></div>", unsafe_allow_html=True)
