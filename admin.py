@@ -7,210 +7,213 @@ import time
 
 # ---------- CONFIGURACIÓN ----------
 st.set_page_config(
-    page_title="Admin Panel",
+    page_title="Gestión Kaizen",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# ---------- ESTILOS CSS (PROFESIONAL Y CENTRADO) ----------
+# ---------- ESTILOS CSS (ESTILO BOOTSTRAP) ----------
 st.markdown("""
 <style>
-    /* 1. Ajustes del Contenedor Principal */
+    /* 1. Ajustes del Layout */
     .block-container {
         padding-top: 1rem !important;
-        padding-bottom: 2rem !important;
+        padding-bottom: 3rem !important;
         max-width: 98% !important;
     }
     header, footer { display: none !important; }
 
-    /* 2. Alineación Vertical Perfecta (Flexbox) */
-    /* Esto centra verticalmente los elementos dentro de las columnas */
+    /* 2. Alineación Vertical (Flexbox) */
     div[data-testid="column"] {
-        display: flex;
-        align-items: center; /* Centro vertical */
-        justify-content: center; /* Centro horizontal */
-        height: 100%;
-    }
-
-    /* 3. Estilos de Botones (GIGANTES Y UNIFORMES) */
-    div[data-testid="stButton"] button {
-        width: 100%;
-        height: 52px; /* Altura forzada para igualar a los inputs */
-        font-size: 24px !important; /* Iconos grandes */
-        font-weight: 900;
-        border-radius: 8px;
-        border: none;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        padding: 0px !important; /* Quitar padding interno para centrar texto */
-        line-height: 52px; /* Centrar verticalmente el texto/icono */
         display: flex;
         align-items: center;
         justify-content: center;
+        height: 100%;
     }
 
-    /* Efecto Hover */
-    div[data-testid="stButton"] button:hover {
-        transform: scale(1.03);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-
-    /* Estilos específicos para botón FULL (Rojo) */
-    div[data-testid="stButton"] button:active {
-        background-color: #ddd;
-    }
-
-    /* 4. Inputs y Selects */
-    .stTextInput input, .stSelectbox div[data-baseweb="select"] {
-        height: 52px; /* Misma altura que botones */
-        font-size: 18px;
-        font-weight: bold;
-        align-items: center;
-    }
-
-    /* 5. ID Badge (El cuadro de color J-01) */
-    .id-badge {
-        font-size: 26px;
-        font-weight: 900;
-        text-align: center;
-        color: #333;
-        padding: 10px 0;
-        border-radius: 8px;
+    /* 3. BOTONES ESTILO BOOTSTRAP */
+    div[data-testid="stButton"] button {
         width: 100%;
-        border: 2px solid rgba(0,0,0,0.1);
-        text-shadow: 0 1px 2px rgba(255,255,255,0.3);
+        height: 50px;       /* Altura fija igual a inputs */
+        border-radius: 6px; /* Bordes ligeramente redondeados (Bootstrap style) */
+        border: 1px solid transparent;
+        font-weight: 600;
+        font-size: 15px;
+        letter-spacing: 0.5px;
+        transition: all 0.2s ease-in-out;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    
+    div[data-testid="stButton"] button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
     }
 
-    /* Colores de Estado */
-    .status-vacia { background-color: #2ECC71; color: white; border: 2px solid #27AE60; }
-    .status-parcial { background-color: #F1C40F; color: black; border: 2px solid #D4AC0D; }
-    .status-completa { background-color: #E74C3C; color: white; border: 2px solid #C0392B; }
+    /* --- COLORES SEMÁNTICOS (BOOTSTRAP) --- */
+    
+    /* Botón 1: PARCIAL -> Bootstrap Success (Verde) */
+    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(1) button {
+        background-color: #198754; 
+        color: white;
+    }
+    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(1) button:hover {
+        background-color: #157347;
+    }
 
-    /* Separador invisible entre filas */
-    .spacer { margin-bottom: 15px; }
+    /* Botón 2: LLENO -> Bootstrap Danger (Rojo) */
+    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(2) button {
+        background-color: #dc3545; 
+        color: white;
+    }
+    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(2) button:hover {
+        background-color: #bb2d3b;
+    }
+    
+    /* Botón 3: REESTABLECER -> Bootstrap Secondary (Gris) */
+    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(3) button {
+        background-color: #6c757d; 
+        color: white;
+    }
+    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(3) button:hover {
+        background-color: #5c636a;
+    }
+
+    /* 4. INPUTS Y SELECTS */
+    .stTextInput input, div[data-baseweb="select"] > div {
+        height: 50px;
+        min-height: 50px;
+        font-size: 16px;
+        border-radius: 6px;
+        border: 1px solid #ced4da; /* Gris Bootstrap */
+    }
+
+    /* 5. TARJETAS DE IDENTIFICACIÓN */
+    .id-badge {
+        width: 100%;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        font-weight: 800;
+        border-radius: 6px;
+        color: #212529;
+        text-shadow: 0 1px 1px rgba(255,255,255,0.5);
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    /* Colores Estado */
+    .bg-vacia { background-color: #d1e7dd; color: #0f5132; border-color: #badbcc; } /* Verde claro */
+    .bg-parcial { background-color: #fff3cd; color: #664d03; border-color: #ffecb5; } /* Amarillo claro */
+    .bg-completa { background-color: #f8d7da; color: #842029; border-color: #f5c2c7; } /* Rojo claro */
+
+    hr { margin: 15px 0; border-color: #dee2e6; }
 
 </style>
 """, unsafe_allow_html=True)
 
-# ---------- CONEXIÓN GOOGLE SHEETS ----------
+# ---------- CONEXIÓN ----------
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
 
 @st.cache_resource
-def conectar_gsheets():
+def conectar():
     try:
-        creds = Credentials.from_service_account_info(st.secrets["gsheets"], scopes=SCOPES)
-        return gspread.authorize(creds)
-    except Exception as e:
-        st.error(f"Error credenciales: {e}")
-        st.stop()
+        return gspread.authorize(Credentials.from_service_account_info(st.secrets["gsheets"], scopes=SCOPES))
+    except: st.stop()
 
 SHEET_ID = "1M9Sccc-3bA33N1MNJtkTCcrDSKK_wfRjeDnqxsrlEtA"
 HOJA_NOMBRE = "Hoja 1"
-client = conectar_gsheets()
+client = conectar()
 sheet = client.open_by_key(SHEET_ID).worksheet(HOJA_NOMBRE)
 
 # ---------- LÓGICA ----------
-def obtener_datos():
+def get_data():
     return pd.DataFrame(sheet.get_all_records())
 
-def generar_fechas(fecha_actual):
-    opciones = []
-    hoy = datetime.now()
-    for i in range(3):
-        opciones.append((hoy + timedelta(days=i)).strftime("%d-%m-%Y"))
-    if fecha_actual and fecha_actual not in opciones:
-        opciones.insert(0, fecha_actual)
-    return opciones
+def get_fechas(actual):
+    lista = [(datetime.now() + timedelta(days=i)).strftime("%d-%m-%Y") for i in range(3)]
+    if actual and actual not in lista: lista.insert(0, actual)
+    return lista
 
-def procesar_accion(pre, dest, fecha, tipo):
+def accion(pre, dest, fecha, tipo):
     try:
-        cell = sheet.find(str(pre), in_column=1)
-        row = cell.row
-        
-        estado = "Vacia"
-        msg = ""
+        row = sheet.find(str(pre), in_column=1).row
+        estado, msg = "Vacia", ""
         
         if tipo == "reset":
             dest, fecha, estado = "", "", "Vacia"
-            msg = f"♻️ {pre} Liberado"
+            msg = f"♻️ {pre} Reestablecido"
         elif tipo == "parcial":
-            if not dest: estado = "Vacia"
-            else: estado = "Parcial"
-            msg = f"💾 {pre} Guardado"
+            estado = "Parcial" if dest else "Vacia"
+            msg = f"💾 {pre} Guardado (Parcial)"
         elif tipo == "full":
             if not dest:
-                st.toast("⚠️ Falta Destino", icon="⚠️")
+                st.toast("⚠️ Debes ingresar un Destino", icon="⚠️")
                 return
             estado = "Completa"
-            msg = f"🛑 {pre} es FULL"
+            msg = f"🛑 {pre} marcado como LLENO"
 
         sheet.update_cell(row, 2, dest)
         sheet.update_cell(row, 3, fecha)
         sheet.update_cell(row, 4, estado)
         st.toast(msg)
         return True
-    except Exception as e:
-        st.error(f"Error: {e}")
+    except Exception as e: st.error(f"Error: {e}")
 
-# ---------- UI ----------
+# ---------- INTERFAZ ----------
 
 # Encabezados
-h1, h2, h3, h4 = st.columns([1, 3, 2, 3])
-h1.markdown("<h4 style='text-align:center; margin:0; color:#555;'>UBI</h4>", unsafe_allow_html=True)
-h2.markdown("<h4 style='text-align:center; margin:0; color:#555;'>DESTINO</h4>", unsafe_allow_html=True)
-h3.markdown("<h4 style='text-align:center; margin:0; color:#555;'>FECHA</h4>", unsafe_allow_html=True)
-h4.markdown("<h4 style='text-align:center; margin:0; color:#555;'>ACCIONES</h4>", unsafe_allow_html=True)
-st.markdown("<hr style='margin:5px 0 15px 0; border-top:1px solid #ccc;'>", unsafe_allow_html=True)
+h1, h2, h3, h4 = st.columns([1, 3, 2, 4.5]) # Damos más espacio a la col 4
+h1.markdown("<div style='text-align:center; font-weight:bold; color:#6c757d;'>UBI</div>", unsafe_allow_html=True)
+h2.markdown("<div style='text-align:center; font-weight:bold; color:#6c757d;'>DESTINO / CLIENTE</div>", unsafe_allow_html=True)
+h3.markdown("<div style='text-align:center; font-weight:bold; color:#6c757d;'>FECHA</div>", unsafe_allow_html=True)
+h4.markdown("<div style='text-align:center; font-weight:bold; color:#6c757d;'>ACCIONES</div>", unsafe_allow_html=True)
+st.markdown("<hr>", unsafe_allow_html=True)
 
-df = obtener_datos()
+df = get_data()
 
-for idx, row in df.iterrows():
+for _, row in df.iterrows():
     pre = str(row['Pre-Stage'])
-    dest = str(row['Destino'])
-    fecha = str(row['Fecha Despacho'])
     ocup = str(row['Ocupacion'])
     
-    # Clase CSS dinámica
-    css = "status-vacia"
-    if ocup == "Parcial": css = "status-parcial"
-    elif ocup == "Completa": css = "status-completa"
+    # Estilo badge
+    css = "bg-vacia"
+    if ocup == "Parcial": css = "bg-parcial"
+    elif ocup == "Completa": css = "bg-completa"
 
-    # Tarjeta / Fila
     with st.container():
-        # Columnas ajustadas para que los botones tengan espacio
-        c1, c2, c3, c4 = st.columns([1, 3, 2, 3], gap="small")
+        # Columnas: Ajustamos para que quepan los textos largos
+        c1, c2, c3, c4 = st.columns([1, 3, 2, 4.5], gap="small")
         
-        # 1. ID
         with c1:
             st.markdown(f"<div class='id-badge {css}'>{pre}</div>", unsafe_allow_html=True)
             
-        # 2. Destino
         with c2:
-            new_dest = st.text_input("D", value=dest, key=f"d{pre}", label_visibility="collapsed", placeholder="Destino...")
+            new_dest = st.text_input("D", value=str(row['Destino']), key=f"d{pre}", label_visibility="collapsed", placeholder="Ingresa destino...")
             
-        # 3. Fecha
         with c3:
-            ops = generar_fechas(fecha)
-            idx_f = ops.index(fecha) if fecha in ops else 0
-            new_date = st.selectbox("F", options=ops, index=idx_f, key=f"f{pre}", label_visibility="collapsed")
+            ops = get_fechas(str(row['Fecha Despacho']))
+            idx = ops.index(str(row['Fecha Despacho'])) if str(row['Fecha Despacho']) in ops else 0
+            new_date = st.selectbox("F", options=ops, index=idx, key=f"f{pre}", label_visibility="collapsed")
             
-        # 4. Botones (Dividimos la columna 4 en 3 sub-botones)
         with c4:
-            b1, b2, b3 = st.columns([1, 1.2, 1], gap="small") # El del medio un poco más ancho para el texto FULL
+            # Sub-columnas: Le damos más espacio al botón "Reestablecer" (b3)
+            b1, b2, b3 = st.columns([1, 0.9, 1.3], gap="small")
             
             with b1:
-                # Botón Guardar (Icono grande)
-                if st.button("💾", key=f"s{pre}", help="Guardar Parcial"):
-                    if procesar_accion(pre, new_dest, new_date, "parcial"): st.rerun()
-            
-            with b2:
-                # Botón Full (Texto + Icono) - Usamos type="primary" para que salga rojo/destacado
-                if st.button("🛑 FULL", key=f"fl{pre}", type="primary", help="Marcar Completa"):
-                    if procesar_accion(pre, new_dest, new_date, "full"): st.rerun()
-                    
-            with b3:
-                # Botón Reset (Icono grande)
-                if st.button("♻️", key=f"r{pre}", help="Limpiar"):
-                    if procesar_accion(pre, new_dest, new_date, "reset"): st.rerun()
+                # PARCIAL: Icono Save
+                if st.button("Parcial", icon=":material/save:", key=f"s{pre}"):
+                    if accion(pre, new_dest, new_date, "parcial"): st.rerun()
 
-    # Espacio entre filas
-    st.markdown("<div class='spacer'></div>", unsafe_allow_html=True)
+            with b2:
+                # LLENO: Icono Candado/Stop
+                if st.button("Lleno", icon=":material/lock:", key=f"f{pre}"):
+                    if accion(pre, new_dest, new_date, "full"): st.rerun()
+
+            with b3:
+                # REESTABLECER: Icono Refrescar
+                if st.button("Reestablecer", icon=":material/refresh:", key=f"r{pre}"):
+                    if accion(pre, new_dest, new_date, "reset"): st.rerun()
+
+    st.markdown("<div style='margin-bottom:10px'></div>", unsafe_allow_html=True)
