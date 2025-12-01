@@ -12,7 +12,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ---------- CSS BLINDADO (COLORES SÓLIDOS Y SIN PARPADEO) ----------
+# ---------- CSS BLINDADO (COLORES Y FUENTES FORZADOS) ----------
 st.markdown("""
 <style>
     /* 1. Layout */
@@ -23,7 +23,7 @@ st.markdown("""
     }
     header, footer { display: none !important; }
 
-    /* 2. Alineación */
+    /* 2. Alineación Vertical */
     div[data-testid="column"] {
         display: flex;
         align-items: center;
@@ -59,56 +59,70 @@ st.markdown("""
         border: 1px solid rgba(0,0,0,0.1);
     }
 
-    /* 5. BOTONES BASE */
+    /* ==========================================================
+       5. BOTONES PRO (ESTILO FORZADO)
+       ========================================================== */
+    
+    /* Regla base para TODOS los botones */
     div[data-testid="stButton"] button {
         height: 45px !important;
         width: 100% !important;
         border: none !important;
         border-radius: 6px !important;
-        font-weight: 700 !important;
-        text-transform: uppercase !important;
+        
+        /* FUENTE ARREGLADA */
+        font-size: 14px !important;
+        font-weight: 800 !important; /* Negrita Extra */
+        text-transform: uppercase !important; /* Mayúsculas */
         letter-spacing: 0.5px !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.15) !important;
+        
+        /* Eliminar efectos blancos */
+        background-image: none !important;
+        background-color: transparent; /* Se define abajo por columna */
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
         transition: none !important; 
-        color: #333; 
+    }
+
+    /* FORZAR COLOR BLANCO EN TEXTO E ICONOS */
+    div[data-testid="stButton"] button p,
+    div[data-testid="stButton"] button span,
+    div[data-testid="stButton"] button svg {
+        color: white !important;
+        fill: white !important;
     }
     
+    /* Eliminar borde azul/blanco al hacer clic */
     div[data-testid="stButton"] button:focus, 
     div[data-testid="stButton"] button:active {
         outline: none !important;
         border: none !important;
+        box-shadow: inset 0 3px 5px rgba(0,0,0,0.2) !important;
     }
 
-    /* 6. COLORES ESPECÍFICOS */
+    /* --- COLORES DEFINITIVOS POR COLUMNA --- */
 
-    /* PARCIAL (VERDE) */
+    /* PARCIAL (VERDE) - Col 4, Subcol 1 */
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(1) button {
-        background: #198754 !important; color: white !important;
+        background: #198754 !important; 
     }
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(1) button:hover {
-        background: #146c43 !important;
+        background: #146c43 !important; /* Verde oscuro */
     }
 
-    /* LLENO (ROJO) */
+    /* LLENO (ROJO) - Col 4, Subcol 2 */
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(2) button {
-        background: #dc3545 !important; color: white !important;
+        background: #dc3545 !important;
     }
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(2) button:hover {
-        background: #b02a37 !important;
+        background: #b02a37 !important; /* Rojo oscuro */
     }
 
-    /* REESTABLECER (GRIS) */
+    /* REESTABLECER (GRIS) - Col 4, Subcol 3 */
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(3) button {
-        background: #6c757d !important; color: white !important;
+        background: #6c757d !important;
     }
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(3) button:hover {
-        background: #565e64 !important;
-    }
-    
-    /* Asegurar iconos blancos */
-    div[data-testid="stButton"] button * {
-        fill: white !important;
-        color: white !important;
+        background: #565e64 !important; /* Gris oscuro */
     }
 
     /* Colores Estado ID */
@@ -134,7 +148,6 @@ def conectar():
 SHEET_ID = "1M9Sccc-3bA33N1MNJtkTCcrDSKK_wfRjeDnqxsrlEtA"
 HOJA_NOMBRE = "Hoja 1"
 
-# Manejo de errores inicial
 try:
     client = conectar()
     sheet = client.open_by_key(SHEET_ID).worksheet(HOJA_NOMBRE)
@@ -142,12 +155,12 @@ except Exception as e:
     st.error(f"⚠️ Error conectando a la hoja: {e}")
     st.stop()
 
-# ---------- LÓGICA CON BLOQUEO DE TIEMPO ----------
+# ---------- LÓGICA CON PAUSA DE SEGURIDAD ----------
 def get_data():
     try:
         return pd.DataFrame(sheet.get_all_records())
     except Exception as e:
-        st.error(f"Error al leer datos: {e}")
+        st.error(f"Error al leer: {e}")
         return pd.DataFrame()
 
 def get_fechas(actual):
@@ -157,15 +170,13 @@ def get_fechas(actual):
 
 def accion(pre, dest, fecha, tipo):
     """
-    Realiza la escritura en Google Sheets con PAUSA DE SEGURIDAD
-    para evitar el bloqueo por exceso de peticiones.
+    Ejecuta la acción y pausa para evitar bloqueo de Google (Error 429)
     """
     try:
-        # 1. Feedback inmediato
-        status_msg = st.empty()
-        status_msg.info("⏳ Conectando con Google...")
-
-        # 2. Lógica de datos
+        # 1. Feedback Visual
+        status = st.empty()
+        status.info("🔄 Procesando...")
+        
         cell = sheet.find(str(pre), in_column=1)
         row = cell.row
         
@@ -179,31 +190,28 @@ def accion(pre, dest, fecha, tipo):
             msg = f"💾 {pre} Guardado"
         elif tipo == "full":
             if not dest:
-                status_msg.error("⚠️ Falta Destino")
+                status.warning("⚠️ Falta Destino")
                 time.sleep(1)
                 return False
             estado = "Completa"
             msg = f"🛑 {pre} FULL"
 
-        # 3. Escritura
+        # 2. Escritura
         sheet.update_cell(row, 2, dest)
         sheet.update_cell(row, 3, fecha)
         sheet.update_cell(row, 4, estado)
         
-        # 4. Mensaje de Éxito
-        status_msg.success(msg)
+        status.success(msg)
         st.toast(msg)
 
-        # 5. BLOQUEO DE SEGURIDAD (COOLDOWN)
-        # Esto evita que el usuario pueda hacer clic inmediatamente de nuevo
-        # y evita el error "APIError: Too many requests"
-        with st.spinner("Sincronizando... por favor espera"):
-            time.sleep(1.5)  # Espera 1.5 segundos obligatorios
+        # 3. PAUSA DE SEGURIDAD (Evita API Error)
+        with st.spinner("Sincronizando..."):
+            time.sleep(1.5) 
             
         return True
 
     except gspread.exceptions.APIError:
-        st.error("⚠️ Google está saturado. Esperando 5 segundos...")
+        st.error("⚠️ Google está saturado. Espera 5 segundos...")
         time.sleep(5)
         return False
     except Exception as e:
