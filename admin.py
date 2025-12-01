@@ -12,10 +12,10 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ---------- CSS BLINDADO (NO MÁS BLANCO) ----------
+# ---------- CSS DEFINITIVO (SIN ERRORES DE COLOR) ----------
 st.markdown("""
 <style>
-    /* 1. Layout y Reset */
+    /* 1. Layout Básico */
     .block-container {
         padding-top: 1rem !important;
         padding-bottom: 3rem !important;
@@ -31,19 +31,18 @@ st.markdown("""
         height: 100%;
     }
 
-    /* 3. INPUTS Y SELECTS (Altura 45px - Gris suave) */
+    /* 3. INPUTS Y SELECTS (Altura 45px) */
     div[data-baseweb="input"], div[data-baseweb="select"] > div {
         height: 45px !important;
         min-height: 45px !important;
-        background-color: #f1f3f5 !important; /* Gris muy claro */
-        border-radius: 6px !important;
+        background-color: #f8f9fa !important;
         border: 1px solid #ced4da !important;
+        border-radius: 6px !important;
     }
     div[data-baseweb="base-input"] input {
         height: 43px !important;
-        font-size: 15px !important;
-        font-weight: 600 !important;
-        color: #212529 !important;
+        font-size: 16px !important;
+        color: #333 !important;
     }
 
     /* 4. BADGE DE IDENTIFICACIÓN */
@@ -57,86 +56,69 @@ st.markdown("""
         font-weight: 800;
         border-radius: 6px;
         border: 1px solid rgba(0,0,0,0.1);
-        text-shadow: 0 1px 1px rgba(255,255,255,0.4);
     }
 
-    /* 5. ESTILOS DE BOTONES (SOLUCIÓN DEFINITIVA) */
-    
-    /* Reseteo agresivo de TODOS los botones */
+    /* ============================================================
+       5. SOLUCIÓN DEFINITIVA A LOS BOTONES
+       ============================================================ */
+
+    /* Regla base para TODOS los botones en la app */
     div[data-testid="stButton"] button {
         height: 45px !important;
         width: 100% !important;
         border: none !important;
         border-radius: 6px !important;
-        font-size: 14px !important;
         font-weight: 700 !important;
         text-transform: uppercase !important;
         letter-spacing: 0.5px !important;
+        transition: none !important; /* Quitamos animaciones que causan parpadeo */
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+    }
+
+    /* FORZAR TEXTO E ICONOS A BLANCO SIEMPRE */
+    div[data-testid="stButton"] button * {
         color: white !important;
-        transition: all 0.15s ease-in-out !important;
-        background-image: none !important; /* Quita gradientes default */
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+        fill: white !important;
     }
 
-    /* Prevenir que se pongan blancos al hacer click o focus */
-    div[data-testid="stButton"] button:focus, 
-    div[data-testid="stButton"] button:active,
-    div[data-testid="stButton"] button:focus-visible {
-        box-shadow: none !important;
-        outline: none !important;
-        border: none !important;
-        color: white !important; /* Mantiene texto blanco */
-    }
+    /* --- COLORES POR POSICIÓN (ELIMINANDO EL BLANCO) --- */
 
-    /* --- INYECCIÓN DE COLORES --- */
-    /* Usamos selectores jerárquicos para pintar cada botón según su columna */
-
-    /* === BOTÓN 1: PARCIAL (VERDE) === */
-    /* Columna principal 4 -> Columna anidada 1 */
+    /* BOTÓN 1: PARCIAL (VERDE) */
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(1) button {
-        background-color: #198754 !important;
+        background: #198754 !important; /* Verde solido */
+        color: white !important;
     }
-    /* Hover Verde Oscuro */
+    /* Estado Hover (Mouse encima) */
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(1) button:hover {
-        background-color: #146c43 !important;
-        color: white !important;
-        box-shadow: 0 4px 8px rgba(25, 135, 84, 0.4) !important;
+        background: #146c43 !important; /* Verde oscuro */
     }
-    /* Active Verde */
-    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(1) button:active {
-        background-color: #0f5132 !important;
-    }
-
-    /* === BOTÓN 2: LLENO (ROJO) === */
-    /* Columna principal 4 -> Columna anidada 2 */
+    
+    /* BOTÓN 2: LLENO (ROJO) */
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(2) button {
-        background-color: #dc3545 !important;
-    }
-    /* Hover Rojo Oscuro */
-    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(2) button:hover {
-        background-color: #b02a37 !important;
+        background: #dc3545 !important; /* Rojo solido */
         color: white !important;
-        box-shadow: 0 4px 8px rgba(220, 53, 69, 0.4) !important;
     }
-    /* Active Rojo */
-    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(2) button:active {
-        background-color: #842029 !important;
+    /* Estado Hover */
+    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(2) button:hover {
+        background: #b02a37 !important; /* Rojo oscuro */
     }
 
-    /* === BOTÓN 3: REESTABLECER (GRIS) === */
-    /* Columna principal 4 -> Columna anidada 3 */
+    /* BOTÓN 3: REESTABLECER (GRIS) */
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(3) button {
-        background-color: #6c757d !important;
-    }
-    /* Hover Gris Oscuro */
-    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(3) button:hover {
-        background-color: #565e64 !important;
+        background: #6c757d !important; /* Gris solido */
         color: white !important;
-        box-shadow: 0 4px 8px rgba(108, 117, 125, 0.4) !important;
     }
-    /* Active Gris */
-    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(3) button:active {
-        background-color: #3d4246 !important;
+    /* Estado Hover */
+    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(3) button:hover {
+        background: #565e64 !important; /* Gris oscuro */
+    }
+
+    /* Evitar que al hacer click se ponga blanco/transparente */
+    div[data-testid="stButton"] button:active, div[data-testid="stButton"] button:focus {
+        color: white !important;
+        border: none !important;
+        outline: none !important;
+        box-shadow: inset 0 3px 5px rgba(0,0,0,0.2) !important;
     }
 
     /* Colores Estado ID */
@@ -201,10 +183,10 @@ def accion(pre, dest, fecha, tipo):
 
 # Encabezados
 h1, h2, h3, h4 = st.columns([1, 3, 2, 4.5]) 
-h1.markdown("<div style='text-align:center; font-weight:700; color:#6c757d; font-size:13px; letter-spacing:0.5px;'>UBI</div>", unsafe_allow_html=True)
-h2.markdown("<div style='text-align:center; font-weight:700; color:#6c757d; font-size:13px; letter-spacing:0.5px;'>DESTINO / CLIENTE</div>", unsafe_allow_html=True)
-h3.markdown("<div style='text-align:center; font-weight:700; color:#6c757d; font-size:13px; letter-spacing:0.5px;'>FECHA</div>", unsafe_allow_html=True)
-h4.markdown("<div style='text-align:center; font-weight:700; color:#6c757d; font-size:13px; letter-spacing:0.5px;'>ACCIONES</div>", unsafe_allow_html=True)
+h1.markdown("<div style='text-align:center; font-weight:700; color:#6c757d; font-size:13px;'>UBI</div>", unsafe_allow_html=True)
+h2.markdown("<div style='text-align:center; font-weight:700; color:#6c757d; font-size:13px;'>DESTINO / CLIENTE</div>", unsafe_allow_html=True)
+h3.markdown("<div style='text-align:center; font-weight:700; color:#6c757d; font-size:13px;'>FECHA</div>", unsafe_allow_html=True)
+h4.markdown("<div style='text-align:center; font-weight:700; color:#6c757d; font-size:13px;'>ACCIONES</div>", unsafe_allow_html=True)
 st.markdown("<hr>", unsafe_allow_html=True)
 
 df = get_data()
@@ -217,7 +199,6 @@ for _, row in df.iterrows():
     elif ocup == "Completa": css = "bg-completa"
 
     with st.container():
-        # Columnas
         c1, c2, c3, c4 = st.columns([1, 3, 2, 4.5], gap="small")
         
         with c1:
@@ -235,7 +216,6 @@ for _, row in df.iterrows():
             b1, b2, b3 = st.columns([1, 0.9, 1.3], gap="small")
             
             with b1:
-                # Usamos use_container_width=True para asegurar que llene el espacio del selector CSS
                 if st.button("Parcial", icon=":material/save:", key=f"s_{pre}", use_container_width=True):
                     if accion(pre, new_dest, new_date, "parcial"): st.rerun()
 
