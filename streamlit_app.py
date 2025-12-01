@@ -4,6 +4,7 @@ import requests
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import os
+import base64
 
 # Asegura que Streamlit busque imágenes en el directorio correcto
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -33,21 +34,18 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# ---------- FUNCIÓN PARA CARGAR IMÁGENES ----------
-def cargar_imagen(path, ancho):
+# ---------- FUNCIÓN: CONVERTIR IMAGEN A BASE64 ----------
+# Esto permite poner las imágenes dentro del HTML directamente para control total
+def get_image_base64(path):
     if os.path.exists(path):
-        st.image(path, width=ancho)
-    else:
-        st.markdown(
-            f"""
-            <div style='width:{ancho}px; height:60px; border:1px dashed #ccc; 
-            display:flex; align-items:center; justify-content:center; 
-            font-size:10px; color:#999; margin:auto;'>
-            Sin Logo
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+        with open(path, "rb") as image_file:
+            encoded = base64.b64encode(image_file.read()).decode()
+        return f"data:image/png;base64,{encoded}"
+    return ""
+
+# Cargar imágenes en memoria
+img_dhl = get_image_base64("assets/DHL.png")
+img_aramark = get_image_base64("assets/Aramark.png")
 
 # ---------- FUNCIÓN PARA CARGAR DATOS ----------
 @st.cache_data(ttl=10)
@@ -62,44 +60,66 @@ def cargar_datos():
     df = pd.DataFrame(data[1:], columns=data[0]).fillna("")
     return df
 
-# ---------- ESTILOS CSS (MODO TV MAXIMIZADO) ----------
+# ---------- ESTILOS CSS (TABLAS FIJAS Y HEADER FLEX) ----------
 estilo_tv = """
 <style>
-    /* 1. ELIMINAR TODOS LOS MÁRGENES INNECESARIOS */
+    /* 1. LAYOUT FULL SCREEN */
     .block-container {
-        padding-top: 0.5rem !important;   /* Pegado arriba */
-        padding-bottom: 0rem !important;
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
+        padding: 0.5rem 1rem !important;
         max-width: 100% !important;
     }
     
-    /* Ocultar elementos de Streamlit */
-    header[data-testid="stHeader"], footer { display: none !important; }
-    #MainMenu { visibility: hidden; }
+    /* Ocultar elementos nativos de Streamlit */
+    header[data-testid="stHeader"], footer, #MainMenu { display: none !important; }
     
-    /* Fondo Blanco puro */
-    html, body, [class*="css"] {
-        font-family: 'Arial', sans-serif;
-        background-color: #ffffff;
+    body { background-color: #ffffff; font-family: 'Arial', sans-serif; }
+
+    /* 2. HEADER FLEXBOX (LOGOS Y HORA) */
+    .header-container {
+        display: flex;
+        justify-content: space-between; /* Logos a los extremos */
+        align-items: center; /* Centrado vertical perfecto */
+        width: 100%;
+        margin-bottom: 15px;
+        background: white;
+        padding: 5px 0;
+        border-bottom: 2px solid #ddd;
+    }
+    
+    .logo-box {
+        width: 20%; /* Espacio para logo */
+        display: flex;
+        justify-content: center;
+    }
+    
+    .logo-img {
+        max-height: 80px; /* Altura máxima logo */
+        max-width: 100%;
+        width: auto;
+        object-fit: contain;
     }
 
-    /* ESTILO TABLAS GIGANTES */
-    
-    /* Contenedor */
-    .table-card {
-        border: 2px solid #444;
-        margin-top: 10px;
-    }
-
-    /* Título ZONA J / D */
-    .zone-header {
-        background-color: #000;
-        color: #FFD700; /* Dorado */
-        padding: 8px;
-        font-size: 36px; /* Muy grande */
-        font-weight: 900;
+    .time-box {
+        width: 60%;
         text-align: center;
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: #333;
+    }
+
+    /* 3. TABLAS PERFECTAMENTE ALINEADAS */
+    .table-wrapper {
+        border: 2px solid #333;
+        margin-bottom: 0px;
+    }
+
+    .zone-title {
+        background-color: #000;
+        color: #FFD700;
+        text-align: center;
+        font-size: 2rem;
+        font-weight: 900;
+        padding: 5px;
         text-transform: uppercase;
         letter-spacing: 2px;
     }
@@ -107,79 +127,88 @@ estilo_tv = """
     table {
         width: 100%;
         border-collapse: collapse;
+        table-layout: fixed; /* <--- CLAVE: Fija el ancho de columnas */
     }
 
-    /* Encabezados de Columna (Rojos) */
+    /* Definición estricta de anchos de columna */
+    /* Col 1: UBI (15%) */
+    th:nth-child(1), td:nth-child(1) { width: 15%; text-align: center !important; }
+    
+    /* Col 2: DESTINO (45%) */
+    th:nth-child(2), td:nth-child(2) { width: 45%; }
+    
+    /* Col 3: FECHA (25%) */
+    th:nth-child(3), td:nth-child(3) { width: 25%; text-align: center !important; }
+    
+    /* Col 4: ESTADO (15%) */
+    th:nth-child(4), td:nth-child(4) { width: 15%; text-align: center !important; }
+
+    /* Estilos de Texto y Color */
     thead th {
         background-color: #d40511;
         color: white;
-        font-size: 28px;
+        font-size: 1.4rem;
         font-weight: 700;
-        padding: 10px;
-        text-align: center;
+        padding: 12px 5px;
+        vertical-align: middle;
+        text-transform: uppercase;
         border: 1px solid #999;
     }
 
-    /* Datos (Celdas) */
     tbody td {
-        font-size: 28px; /* Texto Gigante */
+        font-size: 1.4rem;
         font-weight: 700;
         color: #000;
-        padding: 10px;
-        border: 1px solid #bbb;
+        padding: 8px 5px;
+        border: 1px solid #ccc;
         vertical-align: middle;
-        height: 60px; /* Altura mínima fila */
+        height: 55px; /* Altura mínima fila */
     }
 
-    /* Zebra Striping */
-    tbody tr:nth-of-type(even) { background-color: #f2f2f2; }
-    tbody tr:nth-of-type(odd) { background-color: #ffffff; }
-
-    /* Alineación Columnas */
-    tbody td:nth-child(1) { text-align: center; width: 12%; } /* Ubi */
-    tbody td:nth-child(2) { text-align: left; width: 48%; padding-left: 15px; } /* Destino */
-    tbody td:nth-child(3) { text-align: center; width: 25%; } /* Fecha */
-    tbody td:nth-child(4) { text-align: center; width: 15%; } /* Estado */
-
-    /* Semáforo Gigante */
-    .traffic-light {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: inline-block;
-        border: 2px solid rgba(0,0,0,0.4);
+    /* Alineación específica del CONTENIDO de Destino */
+    /* El encabezado "DESTINO" estará centrado por defecto del th, 
+       pero el dato se lee mejor a la izquierda. Si quieres el dato centrado,
+       cambia 'left' por 'center' abajo */
+    tbody td:nth-child(2) {
+        text-align: left !important; 
+        padding-left: 15px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     
-    /* Estilo para la hora en el header */
-    .time-display {
-        font-size: 32px;
-        font-weight: 900;
-        text-align: center;
-        color: #333;
-        margin-top: 15px; /* Centrado vertical con logos */
+    /* Círculo Semáforo */
+    .traffic-light {
+        height: 35px;
+        width: 35px;
+        border-radius: 50%;
+        display: inline-block;
+        border: 2px solid rgba(0,0,0,0.2);
     }
+    
+    /* Filas alternas */
+    tbody tr:nth-child(even) { background-color: #f4f4f4; }
 </style>
 """
 st.markdown(estilo_tv, unsafe_allow_html=True)
 
-# ---------- HEADER COMPACTO ----------
-# Usamos columnas para poner logos y hora en una sola fila
-h_col1, h_col2, h_col3 = st.columns([1, 4, 1])
+# ---------- HEADER HTML (RESPONSIVE) ----------
+hora_chile = datetime.now(ZoneInfo("America/Santiago")).strftime("%H:%M:%S")
 
-with h_col1:
-    cargar_imagen("assets/DHL.png", 120)
-
-with h_col2:
-    # Hora en grande en el centro, sin título amarillo
-    hora_chile = datetime.now(ZoneInfo("America/Santiago")).strftime("%H:%M:%S")
-    st.markdown(f"<div class='time-display'>🕒 {hora_chile} (GMT-3)</div>", unsafe_allow_html=True)
-
-with h_col3:
-    # Alineado a la derecha
-    with st.container():
-        st.markdown("<div style='text-align:right;'>", unsafe_allow_html=True)
-        cargar_imagen("assets/Aramark.png", 120)
-        st.markdown("</div>", unsafe_allow_html=True)
+header_html = f"""
+<div class="header-container">
+    <div class="logo-box">
+        <img src="{img_dhl}" class="logo-img" alt="DHL">
+    </div>
+    <div class="time-box">
+        🕒 {hora_chile}
+    </div>
+    <div class="logo-box">
+        <img src="{img_aramark}" class="logo-img" alt="Aramark">
+    </div>
+</div>
+"""
+st.markdown(header_html, unsafe_allow_html=True)
 
 # ---------- CARGA Y PROCESO ----------
 try:
@@ -199,14 +228,14 @@ try:
     def render_semaforo(valor):
         v = str(valor).lower().strip()
         if v.startswith("vac"):
-            color = "#00FF00" # Lime
+            color = "#00E676" # Verde brillante
         elif v.startswith("par"):
-            color = "#FFD700" # Gold
+            color = "#FFD600" # Amarillo
         elif v.startswith("com"):
-            color = "#FF0000" # Red
+            color = "#FF1744" # Rojo vivo
         else:
-            color = "#DDDDDD"
-        return f"<span class='traffic-light' style='background-color:{color};'></span>"
+            color = "#BDBDBD"
+        return f"<div style='display:flex; justify-content:center;'><span class='traffic-light' style='background-color:{color};'></span></div>"
 
     def preparar_html_tabla(df_zone, title):
         display = df_zone.copy()
@@ -214,21 +243,21 @@ try:
         display["Fecha Despacho"] = display["Fecha Despacho"].replace("", "—")
         display["Ocupacion_html"] = display["Ocupacion"].apply(render_semaforo)
         
-        # Columnas renombradas corto para ahorrar espacio
         display = display[["Pre-Stage", "Destino", "Fecha Despacho", "Ocupacion_html"]]
-        display.columns = ["UBI", "DESTINO", "FECHA DESPACHO", "ESTADO"]
+        display.columns = ["UBI", "DESTINO", "FECHA", "ESTADO"]
 
+        # Generar HTML plano
         table_html = display.to_html(escape=False, index=False, border=0)
 
         html_final = (
-            f"<div class='table-card'>"
-            f"<div class='zone-header'>{title}</div>"
+            f"<div class='table-wrapper'>"
+            f"<div class='zone-title'>{title}</div>"
             f"{table_html}"
             f"</div>"
         )
         return html_final
 
-    # Columnas principales
+    # Columnas de Streamlit para las dos tablas
     colJ, colD = st.columns(2, gap="medium")
 
     with colJ:
@@ -238,5 +267,5 @@ try:
         st.markdown(preparar_html_tabla(zona_d, "ZONA D"), unsafe_allow_html=True)
 
 except Exception as e:
-    st.error("⚠️ Error de conexión con Google Sheets")
+    st.error("⚠️ Error de conexión o datos")
     st.exception(e)
