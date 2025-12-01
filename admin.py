@@ -12,10 +12,10 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ---------- CSS BLINDADO (COLORES SÓLIDOS REALES) ----------
+# ---------- CSS BLINDADO (NO MÁS BLANCO) ----------
 st.markdown("""
 <style>
-    /* 1. Layout Global */
+    /* 1. Layout y Reset */
     .block-container {
         padding-top: 1rem !important;
         padding-bottom: 3rem !important;
@@ -31,23 +31,24 @@ st.markdown("""
         height: 100%;
     }
 
-    /* 3. IGUALAR ALTURAS (50px) */
+    /* 3. INPUTS Y SELECTS (Altura 45px - Gris suave) */
     div[data-baseweb="input"], div[data-baseweb="select"] > div {
-        height: 50px !important;
-        min-height: 50px !important;
-        background-color: #f8f9fa !important;
+        height: 45px !important;
+        min-height: 45px !important;
+        background-color: #f1f3f5 !important; /* Gris muy claro */
         border-radius: 6px !important;
         border: 1px solid #ced4da !important;
     }
     div[data-baseweb="base-input"] input {
-        height: 48px !important;
-        font-size: 16px !important;
-        color: #333 !important;
+        height: 43px !important;
+        font-size: 15px !important;
+        font-weight: 600 !important;
+        color: #212529 !important;
     }
 
-    /* ID Badge */
+    /* 4. BADGE DE IDENTIFICACIÓN */
     .id-badge {
-        height: 50px !important;
+        height: 45px !important;
         width: 100%;
         display: flex;
         align-items: center;
@@ -56,69 +57,94 @@ st.markdown("""
         font-weight: 800;
         border-radius: 6px;
         border: 1px solid rgba(0,0,0,0.1);
+        text-shadow: 0 1px 1px rgba(255,255,255,0.4);
     }
 
-    /* 4. BOTONES - FORZADO DE COLOR (SOLUCIÓN AL PROBLEMA BLANCO) */
+    /* 5. ESTILOS DE BOTONES (SOLUCIÓN DEFINITIVA) */
     
-    /* Regla general para resetear estilos de Streamlit */
+    /* Reseteo agresivo de TODOS los botones */
     div[data-testid="stButton"] button {
-        height: 50px !important;
+        height: 45px !important;
         width: 100% !important;
-        border: 0px solid transparent !important; /* Quita el borde blanco */
+        border: none !important;
         border-radius: 6px !important;
         font-size: 14px !important;
         font-weight: 700 !important;
         text-transform: uppercase !important;
         letter-spacing: 0.5px !important;
-        color: #FFFFFF !important; /* Texto blanco forzado */
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
-        transition: all 0.2s ease !important;
-    }
-    
-    /* ELIMINAR EFECTOS DE HOVER POR DEFECTO */
-    div[data-testid="stButton"] button:focus:not(:active) {
-        border-color: transparent !important;
-        color: #ffffff !important;
+        color: white !important;
+        transition: all 0.15s ease-in-out !important;
+        background-image: none !important; /* Quita gradientes default */
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
     }
 
-    /* --- COLORES DEFINITIVOS (USANDO BACKGROUND EN VEZ DE BACKGROUND-COLOR) --- */
+    /* Prevenir que se pongan blancos al hacer click o focus */
+    div[data-testid="stButton"] button:focus, 
+    div[data-testid="stButton"] button:active,
+    div[data-testid="stButton"] button:focus-visible {
+        box-shadow: none !important;
+        outline: none !important;
+        border: none !important;
+        color: white !important; /* Mantiene texto blanco */
+    }
 
-    /* 1. PARCIAL -> VERDE */
-    /* Apuntamos a la Columna 4 -> Subcolumna 1 -> Botón */
+    /* --- INYECCIÓN DE COLORES --- */
+    /* Usamos selectores jerárquicos para pintar cada botón según su columna */
+
+    /* === BOTÓN 1: PARCIAL (VERDE) === */
+    /* Columna principal 4 -> Columna anidada 1 */
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(1) button {
-        background: #198754 !important; /* Verde sólido */
+        background-color: #198754 !important;
     }
+    /* Hover Verde Oscuro */
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(1) button:hover {
-        background: #146c43 !important; /* Verde oscuro al pasar mouse */
+        background-color: #146c43 !important;
         color: white !important;
+        box-shadow: 0 4px 8px rgba(25, 135, 84, 0.4) !important;
+    }
+    /* Active Verde */
+    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(1) button:active {
+        background-color: #0f5132 !important;
     }
 
-    /* 2. LLENO -> ROJO */
-    /* Apuntamos a la Columna 4 -> Subcolumna 2 -> Botón */
+    /* === BOTÓN 2: LLENO (ROJO) === */
+    /* Columna principal 4 -> Columna anidada 2 */
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(2) button {
-        background: #dc3545 !important; /* Rojo sólido */
+        background-color: #dc3545 !important;
     }
+    /* Hover Rojo Oscuro */
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(2) button:hover {
-        background: #b02a37 !important; /* Rojo oscuro al pasar mouse */
+        background-color: #b02a37 !important;
         color: white !important;
+        box-shadow: 0 4px 8px rgba(220, 53, 69, 0.4) !important;
+    }
+    /* Active Rojo */
+    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(2) button:active {
+        background-color: #842029 !important;
     }
 
-    /* 3. REESTABLECER -> GRIS */
-    /* Apuntamos a la Columna 4 -> Subcolumna 3 -> Botón */
+    /* === BOTÓN 3: REESTABLECER (GRIS) === */
+    /* Columna principal 4 -> Columna anidada 3 */
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(3) button {
-        background: #6c757d !important; /* Gris sólido */
+        background-color: #6c757d !important;
     }
+    /* Hover Gris Oscuro */
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(3) button:hover {
-        background: #545b62 !important; /* Gris oscuro al pasar mouse */
+        background-color: #565e64 !important;
         color: white !important;
+        box-shadow: 0 4px 8px rgba(108, 117, 125, 0.4) !important;
+    }
+    /* Active Gris */
+    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(3) button:active {
+        background-color: #3d4246 !important;
     }
 
     /* Colores Estado ID */
-    .bg-vacia { background-color: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; } 
-    .bg-parcial { background-color: #fff3cd; color: #664d03; border: 1px solid #ffecb5; } 
-    .bg-completa { background-color: #f8d7da; color: #842029; border: 1px solid #f5c2c7; } 
+    .bg-vacia { background-color: #d1e7dd; color: #0f5132; border-color: #badbcc; } 
+    .bg-parcial { background-color: #fff3cd; color: #664d03; border-color: #ffecb5; } 
+    .bg-completa { background-color: #f8d7da; color: #842029; border-color: #f5c2c7; } 
 
-    hr { margin: 12px 0; border-color: #e5e7eb; }
+    hr { margin: 12px 0; border-color: #dee2e6; }
 
 </style>
 """, unsafe_allow_html=True)
@@ -175,10 +201,10 @@ def accion(pre, dest, fecha, tipo):
 
 # Encabezados
 h1, h2, h3, h4 = st.columns([1, 3, 2, 4.5]) 
-h1.markdown("<div style='text-align:center; font-weight:700; color:#555; font-size:13px;'>UBI</div>", unsafe_allow_html=True)
-h2.markdown("<div style='text-align:center; font-weight:700; color:#555; font-size:13px;'>DESTINO / CLIENTE</div>", unsafe_allow_html=True)
-h3.markdown("<div style='text-align:center; font-weight:700; color:#555; font-size:13px;'>FECHA</div>", unsafe_allow_html=True)
-h4.markdown("<div style='text-align:center; font-weight:700; color:#555; font-size:13px;'>ACCIONES</div>", unsafe_allow_html=True)
+h1.markdown("<div style='text-align:center; font-weight:700; color:#6c757d; font-size:13px; letter-spacing:0.5px;'>UBI</div>", unsafe_allow_html=True)
+h2.markdown("<div style='text-align:center; font-weight:700; color:#6c757d; font-size:13px; letter-spacing:0.5px;'>DESTINO / CLIENTE</div>", unsafe_allow_html=True)
+h3.markdown("<div style='text-align:center; font-weight:700; color:#6c757d; font-size:13px; letter-spacing:0.5px;'>FECHA</div>", unsafe_allow_html=True)
+h4.markdown("<div style='text-align:center; font-weight:700; color:#6c757d; font-size:13px; letter-spacing:0.5px;'>ACCIONES</div>", unsafe_allow_html=True)
 st.markdown("<hr>", unsafe_allow_html=True)
 
 df = get_data()
@@ -191,6 +217,7 @@ for _, row in df.iterrows():
     elif ocup == "Completa": css = "bg-completa"
 
     with st.container():
+        # Columnas
         c1, c2, c3, c4 = st.columns([1, 3, 2, 4.5], gap="small")
         
         with c1:
@@ -208,15 +235,16 @@ for _, row in df.iterrows():
             b1, b2, b3 = st.columns([1, 0.9, 1.3], gap="small")
             
             with b1:
-                if st.button("Parcial", icon=":material/save:", key=f"s_{pre}"):
+                # Usamos use_container_width=True para asegurar que llene el espacio del selector CSS
+                if st.button("Parcial", icon=":material/save:", key=f"s_{pre}", use_container_width=True):
                     if accion(pre, new_dest, new_date, "parcial"): st.rerun()
 
             with b2:
-                if st.button("Lleno", icon=":material/lock:", key=f"l_{pre}"):
+                if st.button("Lleno", icon=":material/lock:", key=f"l_{pre}", use_container_width=True):
                     if accion(pre, new_dest, new_date, "full"): st.rerun()
 
             with b3:
-                if st.button("Reestablecer", icon=":material/refresh:", key=f"r_{pre}"):
+                if st.button("Reestablecer", icon=":material/refresh:", key=f"r_{pre}", use_container_width=True):
                     if accion(pre, new_dest, new_date, "reset"): st.rerun()
 
     st.markdown("<div style='margin-bottom:8px'></div>", unsafe_allow_html=True)
