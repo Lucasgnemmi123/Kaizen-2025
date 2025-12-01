@@ -3,7 +3,6 @@ import pandas as pd
 import requests
 from datetime import datetime
 import os
-from streamlit_extras.st_autorefresh import st_autorefresh
 
 # Asegura que Streamlit busque imágenes en el directorio correcto
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -27,8 +26,11 @@ URL = (
 
 REFRESH_INTERVAL = 30  # segundos
 
-# ---------- AUTO REFRESH ----------
-st_autorefresh(interval=REFRESH_INTERVAL * 1000, key="refresh_key")
+# ---------- AUTO REFRESH COMPATIBLE STREAMLIT CLOUD ----------
+st.markdown(
+    f'<meta http-equiv="refresh" content="{REFRESH_INTERVAL}">',
+    unsafe_allow_html=True
+)
 
 # ---------- FUNCIÓN PARA CARGAR IMÁGENES ----------
 def cargar_imagen(path, ancho):
