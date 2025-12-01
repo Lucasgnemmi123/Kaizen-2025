@@ -12,7 +12,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ---------- CSS BLINDADO (COLORES Y FUENTES FORZADOS) ----------
+# ---------- CSS CORREGIDO (SIN REGLAS GLOBALES DESTRUCTIVAS) ----------
 st.markdown("""
 <style>
     /* 1. Layout */
@@ -59,70 +59,71 @@ st.markdown("""
         border: 1px solid rgba(0,0,0,0.1);
     }
 
-    /* ==========================================================
-       5. BOTONES PRO (ESTILO FORZADO)
-       ========================================================== */
-    
-    /* Regla base para TODOS los botones */
+    /* 5. ESTILO BASE DE BOTONES (NO AGRESIVO) */
     div[data-testid="stButton"] button {
         height: 45px !important;
         width: 100% !important;
-        border: none !important;
         border-radius: 6px !important;
-        
-        /* FUENTE ARREGLADA */
-        font-size: 14px !important;
-        font-weight: 800 !important; /* Negrita Extra */
-        text-transform: uppercase !important; /* Mayúsculas */
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
         letter-spacing: 0.5px !important;
-        
-        /* Eliminar efectos blancos */
-        background-image: none !important;
-        background-color: transparent; /* Se define abajo por columna */
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
-        transition: none !important; 
-    }
-
-    /* FORZAR COLOR BLANCO EN TEXTO E ICONOS */
-    div[data-testid="stButton"] button p,
-    div[data-testid="stButton"] button span,
-    div[data-testid="stButton"] button svg {
-        color: white !important;
-        fill: white !important;
-    }
-    
-    /* Eliminar borde azul/blanco al hacer clic */
-    div[data-testid="stButton"] button:focus, 
-    div[data-testid="stButton"] button:active {
-        outline: none !important;
+        transition: none !important;
         border: none !important;
-        box-shadow: inset 0 3px 5px rgba(0,0,0,0.2) !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.15) !important;
     }
 
-    /* --- COLORES DEFINITIVOS POR COLUMNA --- */
+    /* ==========================================================
+       6. COLORES ESPECÍFICOS POR UBICACIÓN
+       Solo aplicamos color blanco AQUI, no globalmente
+       ========================================================== */
 
-    /* PARCIAL (VERDE) - Col 4, Subcol 1 */
+    /* --- BOTÓN 1: PARCIAL (VERDE) --- */
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(1) button {
-        background: #198754 !important; 
+        background-color: #198754 !important;
+        color: white !important;
     }
+    /* Asegurar que el icono dentro del botón verde sea blanco */
+    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(1) button * {
+        fill: white !important;
+        color: white !important;
+    }
+    /* Hover */
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(1) button:hover {
-        background: #146c43 !important; /* Verde oscuro */
+        background-color: #146c43 !important;
     }
 
-    /* LLENO (ROJO) - Col 4, Subcol 2 */
+    /* --- BOTÓN 2: LLENO (ROJO) --- */
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(2) button {
-        background: #dc3545 !important;
+        background-color: #dc3545 !important;
+        color: white !important;
     }
+    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(2) button * {
+        fill: white !important;
+        color: white !important;
+    }
+    /* Hover */
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(2) button:hover {
-        background: #b02a37 !important; /* Rojo oscuro */
+        background-color: #b02a37 !important;
     }
 
-    /* REESTABLECER (GRIS) - Col 4, Subcol 3 */
+    /* --- BOTÓN 3: REESTABLECER (GRIS) --- */
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(3) button {
-        background: #6c757d !important;
+        background-color: #6c757d !important;
+        color: white !important;
     }
+    div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(3) button * {
+        fill: white !important;
+        color: white !important;
+    }
+    /* Hover */
     div[data-testid="column"]:nth-of-type(4) div[data-testid="column"]:nth-of-type(3) button:hover {
-        background: #565e64 !important; /* Gris oscuro */
+        background-color: #565e64 !important;
+    }
+
+    /* Evitar borde de foco feo */
+    div[data-testid="stButton"] button:focus:not(:active) {
+        border: none !important;
+        outline: none !important;
     }
 
     /* Colores Estado ID */
@@ -155,12 +156,12 @@ except Exception as e:
     st.error(f"⚠️ Error conectando a la hoja: {e}")
     st.stop()
 
-# ---------- LÓGICA CON PAUSA DE SEGURIDAD ----------
+# ---------- LÓGICA ----------
 def get_data():
     try:
         return pd.DataFrame(sheet.get_all_records())
     except Exception as e:
-        st.error(f"Error al leer: {e}")
+        st.error(f"Error al leer datos: {e}")
         return pd.DataFrame()
 
 def get_fechas(actual):
@@ -169,14 +170,10 @@ def get_fechas(actual):
     return lista
 
 def accion(pre, dest, fecha, tipo):
-    """
-    Ejecuta la acción y pausa para evitar bloqueo de Google (Error 429)
-    """
     try:
-        # 1. Feedback Visual
-        status = st.empty()
-        status.info("🔄 Procesando...")
-        
+        status_msg = st.empty()
+        status_msg.info("⏳ Conectando...")
+
         cell = sheet.find(str(pre), in_column=1)
         row = cell.row
         
@@ -190,28 +187,26 @@ def accion(pre, dest, fecha, tipo):
             msg = f"💾 {pre} Guardado"
         elif tipo == "full":
             if not dest:
-                status.warning("⚠️ Falta Destino")
+                status_msg.warning("⚠️ Falta Destino")
                 time.sleep(1)
                 return False
             estado = "Completa"
             msg = f"🛑 {pre} FULL"
 
-        # 2. Escritura
         sheet.update_cell(row, 2, dest)
         sheet.update_cell(row, 3, fecha)
         sheet.update_cell(row, 4, estado)
         
-        status.success(msg)
+        status_msg.success(msg)
         st.toast(msg)
 
-        # 3. PAUSA DE SEGURIDAD (Evita API Error)
         with st.spinner("Sincronizando..."):
-            time.sleep(1.5) 
+            time.sleep(1.5)
             
         return True
 
     except gspread.exceptions.APIError:
-        st.error("⚠️ Google está saturado. Espera 5 segundos...")
+        st.error("⚠️ Esperando 5s (Límite Google)...")
         time.sleep(5)
         return False
     except Exception as e:
@@ -255,6 +250,7 @@ if not df.empty:
                 b1, b2, b3 = st.columns([1, 0.9, 1.3], gap="small")
                 
                 with b1:
+                    # NOTA: uso use_container_width=True para que el botón llene el espacio y el CSS lo encuentre
                     if st.button("Parcial", icon=":material/save:", key=f"s_{pre}", use_container_width=True):
                         if accion(pre, new_dest, new_date, "parcial"): st.rerun()
 
