@@ -38,7 +38,6 @@ def cargar_imagen(path, ancho):
     if os.path.exists(path):
         st.image(path, width=ancho)
     else:
-        # Placeholder estilizado si no hay imagen
         st.markdown(
             f"""
             <div style='width:{ancho}px; height:80px; border:2px dashed #ccc; 
@@ -63,134 +62,147 @@ def cargar_datos():
     df = pd.DataFrame(data[1:], columns=data[0]).fillna("")
     return df
 
-# ---------- ESTILOS CSS (MEJORADOS VISUALMENTE) ----------
-estilo_mejorado = """
+# ---------- ESTILOS CSS (MODO TV / FULL SCREEN) ----------
+estilo_tv = """
 <style>
-    /* Reset básico y fuente */
+    /* 1. FORZAR FULL SCREEN Y QUITAR MÁRGENES */
+    .block-container {
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        max-width: 100% !important; /* Usa todo el ancho disponible */
+    }
+    
+    /* Ocultar elementos de Streamlit que no sirven en TV */
+    header[data-testid="stHeader"], footer {
+        display: none !important;
+    }
+    
+    #MainMenu {
+        visibility: hidden;
+    }
+
+    /* Fuente Global */
     html, body, [class*="css"] {
-        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        background-color: #f9f9f9; /* Fondo suave para la app */
+        font-family: 'Arial', sans-serif; /* Arial es muy legible en pantallas */
+        background-color: #ffffff;
     }
 
     /* Título Principal */
     .main-title-container {
-        background: linear-gradient(90deg, #FFCC00 0%, #F7DC6F 100%); /* Gradiente DHL */
-        padding: 15px;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        background: #F7DC6F; /* Amarillo DHL */
+        padding: 10px;
+        border-radius: 8px;
         text-align: center;
         margin-bottom: 20px;
+        border: 2px solid #000;
     }
     .main-title-text {
-        font-size: 2.5rem;
-        font-weight: 800;
-        color: #d40511; /* Rojo DHL para contraste o negro #000 */
+        font-size: 40px; /* Título Gigante */
+        font-weight: 900;
+        color: #d40511; /* Rojo DHL */
         text-transform: uppercase;
         margin: 0;
-        letter-spacing: 1px;
+        line-height: 1;
     }
 
-    /* Contenedor de las Tablas (Card View) */
+    /* Contenedor Tablas */
     .table-card {
+        border: 2px solid #333;
+        border-radius: 0px; /* Bordes rectos se ven mejor en tablas técnicas */
+        margin-bottom: 0px;
         background: white;
-        border-radius: 12px;
-        padding: 0;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        overflow: hidden; /* Para respetar bordes redondeados */
-        margin-bottom: 20px;
-        border: 1px solid #e0e0e0;
     }
 
-    /* Encabezado de Zona (J o D) */
+    /* Encabezado ZONA J / ZONA D */
     .zone-header {
-        background-color: #333;
-        color: #fff;
-        padding: 15px;
-        font-size: 1.5rem;
-        font-weight: 700;
+        background-color: #000;
+        color: #F7DC6F; /* Amarillo sobre negro */
+        padding: 10px;
+        font-size: 32px; /* Muy grande */
+        font-weight: 800;
         text-align: center;
-        letter-spacing: 1px;
+        text-transform: uppercase;
     }
 
-    /* La Tabla en sí */
+    /* TABLA GENERAL */
     table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 1.2rem; /* Tamaño grande para TV */
     }
 
-    /* Cabecera de la tabla */
+    /* Encabezados de Columnas */
     thead th {
-        background-color: #d40511; /* Rojo corporativo o Gris Oscuro */
+        background-color: #d40511;
         color: white;
-        padding: 12px;
-        text-align: center;
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 1rem;
-        border-bottom: 3px solid #b0040e;
-    }
-
-    /* Celdas del cuerpo */
-    tbody td {
-        padding: 12px 10px;
-        border-bottom: 1px solid #eee;
-        color: #333;
-        vertical-align: middle;
-        font-weight: 500;
-    }
-
-    /* Zebra Striping (Filas alternas) */
-    tbody tr:nth-of-type(even) {
-        background-color: #f8f9fa;
-    }
-    tbody tr:hover {
-        background-color: #fff8e1; /* Highlight al pasar mouse */
-    }
-
-    /* Columna Destino (Alineada izquierda y negrita) */
-    tbody td:nth-child(2) {
-        text-align: left !important;
+        font-size: 26px; /* Letra grande encabezados */
         font-weight: 700;
-        color: #000;
-        padding-left: 20px;
-    }
-    
-    /* Demás columnas centradas */
-    tbody td:nth-child(1),
-    tbody td:nth-child(3),
-    tbody td:nth-child(4) {
+        padding: 12px 5px;
         text-align: center;
+        border: 1px solid #999;
     }
 
-    /* Semáforo */
+    /* Celdas de Datos */
+    tbody td {
+        font-size: 26px; /* Letra grande datos */
+        font-weight: 700; /* Negrita para legibilidad */
+        color: #000;
+        padding: 12px 8px;
+        border: 1px solid #bbb;
+        vertical-align: middle;
+    }
+
+    /* Zebra Striping */
+    tbody tr:nth-of-type(even) {
+        background-color: #f0f0f0; /* Gris claro */
+    }
+    tbody tr:nth-of-type(odd) {
+        background-color: #ffffff; /* Blanco */
+    }
+
+    /* Ajuste Específico de Columnas */
+    
+    /* Columna 1: Ubicación (Centrada) */
+    tbody td:nth-child(1) { text-align: center; width: 15%; }
+    
+    /* Columna 2: Destino (Izquierda, toma el espacio sobrante) */
+    tbody td:nth-child(2) { text-align: left; width: 45%; }
+    
+    /* Columna 3: Fecha (Centrada) */
+    tbody td:nth-child(3) { text-align: center; width: 25%; }
+    
+    /* Columna 4: Estado/Semáforo (Centrada) */
+    tbody td:nth-child(4) { text-align: center; width: 15%; }
+
+
+    /* Semáforo Grande */
     .traffic-light {
-        width: 24px;
-        height: 24px;
+        width: 35px;
+        height: 35px;
         border-radius: 50%;
         display: inline-block;
-        box-shadow: inset 0 -2px 5px rgba(0,0,0,0.2); /* Efecto 3D */
-        border: 1px solid rgba(0,0,0,0.1);
+        border: 2px solid rgba(0,0,0,0.3);
     }
-
-    /* Footer / Notas */
+    
+    /* Footer */
     .footer-note {
-        font-size: 0.9rem;
-        color: #777;
+        font-size: 20px;
+        font-weight: bold;
+        color: #555;
         text-align: center;
-        margin-top: 20px;
+        margin-top: 15px;
     }
 </style>
 """
-st.markdown(estilo_mejorado, unsafe_allow_html=True)
+st.markdown(estilo_tv, unsafe_allow_html=True)
 
 # ---------- ENCABEZADO ----------
-header_left, header_center, header_right = st.columns([1, 6, 1])
+# Ajustamos columnas (más espacio al centro)
+header_left, header_center, header_right = st.columns([1.5, 7, 1.5])
 
 with header_left:
-    # Centramos verticalmente la imagen
-    st.write("") # Espaciador
-    cargar_imagen("assets/DHL.png", 140)
+    cargar_imagen("assets/DHL.png", 180) # Logo un poco más grande
 
 with header_center:
     st.markdown(
@@ -203,12 +215,11 @@ with header_center:
     )
 
 with header_right:
-    st.write("") # Espaciador
-    cargar_imagen("assets/Aramark.png", 140)
+    cargar_imagen("assets/Aramark.png", 180) # Logo un poco más grande
 
 # ---------- HORA GMT-3 ----------
 hora_chile = datetime.now(ZoneInfo("America/Santiago")).strftime("%H:%M:%S")
-st.markdown(f"<p style='text-align:center; font-size:18px; color:#555; font-weight:bold;'>🕒 Última actualización: {hora_chile}</p>", unsafe_allow_html=True)
+st.markdown(f"<p style='text-align:center; font-size:24px; color:#000; font-weight:bold; margin-top:-10px; margin-bottom:15px;'>🕒 ACTUALIZADO: {hora_chile}</p>", unsafe_allow_html=True)
 
 # ---------- CARGA Y PROCESO ----------
 try:
@@ -225,34 +236,29 @@ try:
     if zona_j.empty: zona_j = pd.DataFrame(columns=cols)
     if zona_d.empty: zona_d = pd.DataFrame(columns=cols)
 
-    # Semáforo Lógica
     def render_semaforo(valor):
         v = str(valor).lower().strip()
         if v.startswith("vac"):
-            color = "#2ECC71" # Verde
+            color = "#00FF00" # Verde Brillante (Lime)
         elif v.startswith("par"):
-            color = "#F1C40F" # Amarillo
+            color = "#FFD700" # Amarillo Oro
         elif v.startswith("com"):
-            color = "#E74C3C" # Rojo
+            color = "#FF0000" # Rojo Puro
         else:
-            color = "#BDC3C7" # Gris
+            color = "#CCCCCC"
         return f"<span class='traffic-light' style='background-color:{color};'></span>"
 
-    # Función Generadora de HTML Tabla
     def preparar_html_tabla(df_zone, title):
         display = df_zone.copy()
         display["Destino"] = display["Destino"].replace("", "—")
         display["Fecha Despacho"] = display["Fecha Despacho"].replace("", "—")
         display["Ocupacion_html"] = display["Ocupacion"].apply(render_semaforo)
         
-        # Seleccionamos y renombramos
         display = display[["Pre-Stage", "Destino", "Fecha Despacho", "Ocupacion_html"]]
-        display.columns = ["UBICACIÓN", "DESTINO", "FECHA", "ESTADO"]
+        display.columns = ["UBI", "DESTINO", "FECHA", "ESTADO"] # Nombres cortos encabezados
 
-        # Generamos la tabla HTML pura sin estilos inline de pandas
         table_html = display.to_html(escape=False, index=False, border=0)
 
-        # Envolvemos en nuestra estructura de tarjeta CSS
         html_final = (
             f"<div class='table-card'>"
             f"<div class='zone-header'>{title}</div>"
@@ -261,8 +267,8 @@ try:
         )
         return html_final
 
-    # Layout de columnas para las tablas
-    colJ, colD = st.columns(2, gap="large")
+    # Columas con un hueco pequeño en el medio (gap="small") para aprovechar espacio
+    colJ, colD = st.columns(2, gap="small")
 
     with colJ:
         st.markdown(preparar_html_tabla(zona_j, "ZONA J"), unsafe_allow_html=True)
@@ -272,10 +278,10 @@ try:
 
     # Footer
     st.markdown(
-        f"<div class='footer-note'>🔄 El tablero se actualizará automáticamente en {REFRESH_INTERVAL} segundos.</div>",
+        f"<div class='footer-note'>RECARGA EN {REFRESH_INTERVAL} SEG</div>",
         unsafe_allow_html=True
     )
 
 except Exception as e:
-    st.error("⚠️ Error al cargar los datos desde Google Sheets API.")
+    st.error("⚠️ Error de conexión")
     st.exception(e)
